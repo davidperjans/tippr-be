@@ -10,9 +10,6 @@ jobs:
   build-and-test:
     name: Build & Test .NET
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src
 
     steps:
     - uses: actions/checkout@v6
