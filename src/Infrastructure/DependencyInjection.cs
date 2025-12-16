@@ -1,7 +1,12 @@
-﻿using Infrastructure.Data;
+﻿using Application.Common.Interfaces;
+using Infrastructure.Auth;
+using Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Supabase;
 
 namespace Infrastructure
 {
@@ -9,7 +14,7 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("DATABASE_CONNECTION");
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             // Register DbContext - connection string will be validated at runtime
             services.AddDbContext<TipprDbContext>(options =>
@@ -34,6 +39,31 @@ namespace Infrastructure
                     #endif
                 }
             });
+
+            var supabaseUrl = configuration["Supabase:Url"]
+                ?? throw new InvalidOperationException("Supabase:Url is not configured");
+            var supabaseKey = configuration["Supabase:Key"]
+                ?? throw new InvalidOperationException("Supabase:Key is not configured");
+
+            services.AddScoped<Supabase.Client>(_ =>
+                new Supabase.Client(
+                    supabaseUrl,
+                    supabaseKey,
+                    new SupabaseOptions
+                    {
+                        AutoRefreshToken = false,
+                        AutoConnectRealtime = false
+                    }
+                )
+            );
+
+            // HttpContextAccessor
+            services.AddHttpContextAccessor();
+            
+
+            // Services + Repositories
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
 
             return services;
         }

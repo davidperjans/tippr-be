@@ -12,6 +12,9 @@ namespace Infrastructure.Data.Configurations
 
             builder.HasKey(u => u.Id);
 
+            builder.Property(u => u.AuthUserId)
+                .IsRequired();
+
             builder.Property(u => u.Username)
                 .IsRequired()
                 .HasMaxLength(50);
@@ -41,6 +44,10 @@ namespace Infrastructure.Data.Configurations
                 .IsUnique();
 
             builder.HasIndex(u => u.Email);
+
+            builder.HasIndex(u => u.AuthUserId)
+                .IsUnique()
+                .HasDatabaseName("IX_Users_AuthUserId");
 
             // Relationships
             builder.HasOne(u => u.FavoriteTeam)

@@ -4,6 +4,8 @@ namespace Domain.Entities
 {
     public class User : BaseEntity
     {
+        public Guid AuthUserId { get; set; } // Supabase Auth User ID
+
         public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
