@@ -1,9 +1,10 @@
+using Application.Common.Interfaces;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data
 {
-    public class TipprDbContext : DbContext
+    public class TipprDbContext : DbContext, ITipprDbContext
     {
         public TipprDbContext(DbContextOptions<TipprDbContext> options) : base(options)
         {
