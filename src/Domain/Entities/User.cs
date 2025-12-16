@@ -1,4 +1,5 @@
 ﻿using Domain.Common;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -11,6 +12,7 @@ namespace Domain.Entities
         public string Email { get; set; } = string.Empty;
         public string? AvatarUrl { get; set; }
         public string? Bio { get; set; }
+        public UserRole Role { get; set; }
         public Guid? FavoriteTeamId { get; set; }
         public DateTime? LastLoginAt { get; set; }
 

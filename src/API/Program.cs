@@ -1,6 +1,8 @@
+using API.Auth;
 using Application;
 using Infrastructure;
 using Infrastructure.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -30,6 +32,18 @@ namespace API
                     .Enrich.WithThreadId()
                     .Enrich.WithProperty("Application", "Tippr")
                     .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName));
+
+                // Cors
+                builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowFrontend", policy =>
+                    {
+                        policy.WithOrigins("http://localhost:5173") // Frontend URL
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials();
+                    });
+                });
 
                 // Services
                 builder.Services.AddControllers();
@@ -79,7 +93,13 @@ namespace API
                         "SupabaseAuth",
                         options => { });
 
-                builder.Services.AddAuthorization();
+                builder.Services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("AdminOnly", policy =>
+                        policy.Requirements.Add(new AdminRequirement()));
+                });
+
+                builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
 
                 var app = builder.Build();
 
@@ -114,6 +134,8 @@ namespace API
                 }
 
                 app.UseHttpsRedirection();
+
+                app.UseCors("AllowFrontend");
 
                 // Middleware order
                 app.UseAuthentication();

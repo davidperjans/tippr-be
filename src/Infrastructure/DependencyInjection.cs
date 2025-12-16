@@ -59,9 +59,12 @@ namespace Infrastructure
 
             // HttpContextAccessor
             services.AddHttpContextAccessor();
-            
 
-            // Services + Repositories
+
+            // Services
+            services.AddScoped<ITipprDbContext>(sp =>
+                sp.GetRequiredService<TipprDbContext>());
+
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICurrentUser, CurrentUser>();
 
