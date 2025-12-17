@@ -10,7 +10,6 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    [Authorize]
     public class AuthController : BaseApiController
     {
         private readonly IMediator _mediator;
@@ -25,6 +24,7 @@ namespace API.Controllers
         /// Hämtar inloggad användares information
         /// User synkas automatiskt via UserSyncMiddleware
         /// </summary>
+        [Authorize(AuthenticationSchemes = "SupabaseAuth")]
         [HttpGet("me")]
         public async Task<ActionResult<Result<CurrentUserResponse>>> GetMe()
         {

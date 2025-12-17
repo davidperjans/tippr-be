@@ -9,7 +9,7 @@ using Moq;
 using MockQueryable.Moq;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Tests.Features.Tournaments
+namespace Application.Tests.Features.Tournaments.Commands
 {
     public sealed class CreateTournamentCommandHandlerTests
     {
