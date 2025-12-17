@@ -18,7 +18,8 @@ namespace Application.Features.Leagues.Mapping
                 .ForMember(d => d.Id, o => o.Ignore())
                 .ForMember(d => d.LeagueId, o => o.Ignore())      // sätts vid create / ska inte ändras
                 .ForMember(d => d.CreatedAt, o => o.Ignore())     // om du har timestamps
-                .ForMember(d => d.UpdatedAt, o => o.Ignore());    // sätter vi manuellt i handler
+                .ForMember(d => d.UpdatedAt, o => o.Ignore())     // sätter vi manuellt i handler
+                .ForMember(d => d.League, o => o.Ignore());       // navigation property
         }
     }
 }

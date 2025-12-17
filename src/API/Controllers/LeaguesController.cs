@@ -6,6 +6,7 @@ using Application.Features.Leagues.Commands.JoinLeague;
 using Application.Features.Leagues.Commands.UpdateLeagueSettings;
 using Application.Features.Leagues.DTOs;
 using Application.Features.Leagues.Queries.GetLeague;
+using Application.Features.Leagues.Queries.GetLeagueStandings;
 using Application.Features.Leagues.Queries.GetUserLeagues;
 using Domain.Enums;
 using MediatR;
@@ -98,6 +99,15 @@ namespace API.Controllers
             );
 
             var result = await _mediator.Send(cmd, ct);
+            return FromResult(result);
+        }
+
+        [HttpGet("{id:guid}/standings")]
+        public async Task<ActionResult<Result<IReadOnlyList<LeagueStandingDto>>>> GetStandings(Guid id, CancellationToken ct)
+        {
+            var query = new GetLeagueStandingsQuery(id, _currentUser.UserId);
+            var result = await _mediator.Send(query, ct);
+
             return FromResult(result);
         }
     }

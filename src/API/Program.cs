@@ -6,156 +6,114 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
-namespace API
+var builder = WebApplication.CreateBuilder(args);
+
+// 1. Serilog Setup - Använd Configuration-baserad setup för flexibilitet
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
+
+try
 {
-    public class Program
+    Log.Information("Starting Tippr API");
+
+    // 2. Add Services (DI Container)
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddMemoryCache();
+
+    // Layers
+    builder.Services.AddInfrastructureServices(builder.Configuration);
+    builder.Services.AddApplicationServices();
+
+    // CORS
+    builder.Services.AddCors(options =>
     {
-        public static void Main(string[] args)
+        options.AddPolicy("AllowFrontend", policy =>
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateBootstrapLogger();
+            policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "http://localhost:5173")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
+    });
 
-            try
+    // Swagger
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Tippr API", Version = "v1" });
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Paste Supabase access_token"
+        });
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement {
             {
-                Log.Information("Starting Tippr API");
-
-                var builder = WebApplication.CreateBuilder(args);
-
-                builder.Host.UseSerilog((context, services, configuration) => configuration
-                    .ReadFrom.Configuration(context.Configuration)
-                    .ReadFrom.Services(services)
-                    .Enrich.FromLogContext()
-                    .Enrich.WithMachineName()
-                    .Enrich.WithThreadId()
-                    .Enrich.WithProperty("Application", "Tippr")
-                    .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName));
-
-                // Cors
-                builder.Services.AddCors(options =>
-                {
-                    options.AddPolicy("AllowFrontend", policy =>
-                    {
-                        policy.WithOrigins("http://localhost:5173") // Frontend URL
-                              .AllowAnyMethod()
-                              .AllowAnyHeader()
-                              .AllowCredentials();
-                    });
-                });
-
-                // Services
-                builder.Services.AddControllers();
-                builder.Services.AddEndpointsApiExplorer();
-                builder.Services.AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Tippr API", Version = "v1" });
-
-                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                    {
-                        Name = "Authorization",
-                        Type = SecuritySchemeType.Http,
-                        Scheme = "bearer",
-                        BearerFormat = "JWT",
-                        In = ParameterLocation.Header,
-                        Description = "Paste Supabase access_token here (without 'Bearer ')"
-                    });
-
-                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            Array.Empty<string>()
-                        }
-                    });
-                });
-
-                // Memory cache
-                builder.Services.AddMemoryCache();
-
-                // Layers
-                builder.Services.AddInfrastructureServices(builder.Configuration);
-                builder.Services.AddApplicationServices();
-
-
-                // Supabase Authentication
-                builder.Services
-                    .AddAuthentication("SupabaseAuth")
-                    .AddScheme<SupabaseAuthenticationOptions, SupabaseAuthenticationHandler>(
-                        "SupabaseAuth",
-                        options => { });
-
-                builder.Services.AddAuthorization(options =>
-                {
-                    options.AddPolicy("AdminOnly", policy =>
-                        policy.Requirements.Add(new AdminRequirement()));
-                });
-
-                builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
-
-                var app = builder.Build();
-
-                app.UseSerilogRequestLogging(options =>
-                {
-                    options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
-                    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-                    {
-                        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
-                        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
-                        diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"].ToString());
-
-                        // Lägg till user info om autentiserad
-                        if (httpContext.User.Identity?.IsAuthenticated == true)
-                        {
-                            var userId = httpContext.User.FindFirst("user_id")?.Value;
-                            var email = httpContext.User.FindFirst("email")?.Value;
-
-                            if (!string.IsNullOrEmpty(userId))
-                                diagnosticContext.Set("UserId", userId);
-                            if (!string.IsNullOrEmpty(email))
-                                diagnosticContext.Set("UserEmail", email);
-                        }
-                    };
-                });
-
-                // Configure the HTTP request pipeline.
-                if (app.Environment.IsDevelopment())
-                {
-                    app.UseSwagger();
-                    app.UseSwaggerUI();
-                }
-
-                app.UseHttpsRedirection();
-
-                app.UseCors("AllowFrontend");
-
-                // Middleware order
-                app.UseAuthentication();
-                app.UseMiddleware<UserSyncMiddleware>();
-                app.UseAuthorization();
-
-                app.MapControllers();
-
-                Log.Information("Tippr API started successfully");
-
-                app.Run();
+                new OpenApiSecurityScheme {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                },
+                Array.Empty<string>()
             }
-            catch (Exception ex)
+        });
+    });
+
+    // Authentication & Authorization
+    builder.Services
+        .AddAuthentication("SupabaseAuth")
+        .AddScheme<SupabaseAuthenticationOptions, SupabaseAuthenticationHandler>("SupabaseAuth", _ => { });
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("AdminOnly", policy => policy.Requirements.Add(new AdminRequirement()));
+    });
+    builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
+
+    // 3. Build & Pipeline
+    var app = builder.Build();
+
+    // Serilog Request Logging (Körs alltid, men konfigureras via appsettings)
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        {
+            var user = httpContext.User;
+            if (user.Identity?.IsAuthenticated == true)
             {
-                Log.Fatal(ex, "Tippr API terminated unexpectedly");
+                diagnosticContext.Set("UserId", user.FindFirst("user_id")?.Value);
             }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
-        }
+        };
+    });
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
     }
+
+    app.UseHttpsRedirection();
+    app.UseCors("AllowFrontend");
+
+    app.UseAuthentication();
+    app.UseMiddleware<UserSyncMiddleware>();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
 }
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Tippr API terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+// Gör Program-klassen synlig för Integration Tests
+public partial class Program { }
