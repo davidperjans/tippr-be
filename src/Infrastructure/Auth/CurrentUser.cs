@@ -18,50 +18,31 @@ namespace Infrastructure.Auth
         /// Intern User ID (från database)
         /// Läggs till av UserSyncMiddleware
         /// </summary>
-        public Guid UserId => Guid.Parse(GetClaimValue("user_id"));
+        public Guid UserId => Guid.Parse(GetRequiredClaim("user_id"));
 
         /// <summary>
         /// Email från Supabase token
         /// </summary>
-        public string Email => GetClaimValue("email");
+        public string Email => GetRequiredClaim("email");
 
         /// <summary>
         /// Supabase Auth User ID
         /// </summary>
-        public Guid AuthUserId => Guid.Parse(GetClaimValue("sub"));
+        public Guid AuthUserId => Guid.Parse(GetRequiredClaim("sub"));
 
-        private string GetClaimValue(string type)
+        private string GetRequiredClaim(string type)
         {
             var user = _httpContextAccessor.HttpContext?.User;
 
-            if (user == null || user.Identity?.IsAuthenticated != true)
-            {
+            if (user?.Identity?.IsAuthenticated != true)
                 throw new UnauthorizedException("User is not authenticated.");
-            }
 
-            // Försök hitta claim med olika varianter
-            var claim = user.FindFirst(type)
-                ?? user.FindFirst(type.ToLower())
-                ?? user.FindFirst(GetStandardClaimType(type));
+            var claim = user.FindFirst(type);
 
-            if (claim == null || string.IsNullOrEmpty(claim.Value))
-            {
+            if (claim == null || string.IsNullOrWhiteSpace(claim.Value))
                 throw new UnauthorizedException($"Missing '{type}' claim.");
-            }
 
             return claim.Value;
-        }
-
-        private string GetStandardClaimType(string type)
-        {
-            return type.ToLower() switch
-            {
-                "email" => ClaimTypes.Email,
-                "user_id" => ClaimTypes.NameIdentifier,
-                "sub" => ClaimTypes.NameIdentifier,
-                "auth_user_id" => ClaimTypes.NameIdentifier,
-                _ => type
-            };
         }
     }
 }
