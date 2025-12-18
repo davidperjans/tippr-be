@@ -28,7 +28,7 @@ namespace API.Controllers
         [HttpGet("me")]
         public async Task<ActionResult<Result<CurrentUserResponse>>> GetMe()
         {
-            var query = new GetCurrentUserQuery(_currentUser.UserId);
+            var query = new GetCurrentUserQuery(_currentUser.AuthUserId);
             var result = await _mediator.Send(query);
             return FromResult(result);
         }

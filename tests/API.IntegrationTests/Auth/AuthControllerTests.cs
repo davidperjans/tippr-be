@@ -19,10 +19,15 @@ namespace API.IntegrationTests.Auth
         [Fact]
         public async Task GetMe_Should_Return_200_When_Authenticated()
         {
+            var client = _factory.CreateAuthenticatedClient();
+
             await TestSeed.SeedUserAsync(_factory.Services);
 
-            var client = _factory.CreateAuthenticatedClient();
             var res = await client.GetAsync("/api/auth/me");
+            var body = await res.Content.ReadAsStringAsync();
+
+            Console.WriteLine($"Status: {(int)res.StatusCode} {res.StatusCode}");
+            Console.WriteLine(body);
 
             Assert.Equal(HttpStatusCode.OK, res.StatusCode);
         }

@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Auth\Commands\" />
+    <Folder Include="Features\Teams\Commands\" />
   </ItemGroup>
 
 </Project>

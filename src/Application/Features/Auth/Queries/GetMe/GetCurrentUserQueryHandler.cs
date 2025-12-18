@@ -15,7 +15,7 @@ namespace Application.Features.Auth.Queries.GetMe
 
         public async Task<Result<CurrentUserResponse>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
         {
-            var user = await _authService.GetByIdAsync(request.UserId, cancellationToken);
+            var user = await _authService.GetByAuthUserIdAsync(request.UserId, cancellationToken);
 
             if (user == null)
                 return Result<CurrentUserResponse>.Failure("user not synced");

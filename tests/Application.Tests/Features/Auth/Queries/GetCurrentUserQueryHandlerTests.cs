@@ -21,11 +21,13 @@ public sealed class GetCurrentUserQueryHandlerTests
     public async Task Handle_Should_Return_User_When_User_Exists()
     {
         // Arrange
+        var authUserId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var lastLoginAt = DateTime.UtcNow.AddDays(-1);
         var user = new User
         {
             Id = userId,
+            AuthUserId = authUserId,
             Email = "test@example.com",
             DisplayName = "Test User",
             LastLoginAt = lastLoginAt,
@@ -33,10 +35,10 @@ public sealed class GetCurrentUserQueryHandlerTests
         };
 
         _authServiceMock
-            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByAuthUserIdAsync(authUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var query = new GetCurrentUserQuery(userId);
+        var query = new GetCurrentUserQuery(authUserId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -75,9 +77,11 @@ public sealed class GetCurrentUserQueryHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
+        var authUserId = Guid.NewGuid();
         var user = new User
         {
             Id = userId,
+            AuthUserId = authUserId,
             Email = "test@example.com",
             DisplayName = "Test User",
             LastLoginAt = DateTime.UtcNow.AddDays(-1),
@@ -85,10 +89,10 @@ public sealed class GetCurrentUserQueryHandlerTests
         };
 
         _authServiceMock
-            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByAuthUserIdAsync(authUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var query = new GetCurrentUserQuery(userId);
+        var query = new GetCurrentUserQuery(authUserId);
 
         // Act
         await _handler.Handle(query, CancellationToken.None);
@@ -125,10 +129,12 @@ public sealed class GetCurrentUserQueryHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
+        var authUserId = Guid.NewGuid();
         var createdAt = DateTime.UtcNow.AddMonths(-1);
         var user = new User
         {
             Id = userId,
+            AuthUserId = authUserId,
             Email = "test@example.com",
             DisplayName = "New User",
             LastLoginAt = null,
@@ -136,10 +142,10 @@ public sealed class GetCurrentUserQueryHandlerTests
         };
 
         _authServiceMock
-            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByAuthUserIdAsync(authUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var query = new GetCurrentUserQuery(userId);
+        var query = new GetCurrentUserQuery(authUserId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -154,10 +160,11 @@ public sealed class GetCurrentUserQueryHandlerTests
     public async Task Handle_Should_Return_Null_DisplayName_When_User_Has_No_DisplayName()
     {
         // Arrange
-        var userId = Guid.NewGuid();
+        var authUserId = Guid.NewGuid();
         var user = new User
         {
-            Id = userId,
+            Id = Guid.NewGuid(),
+            AuthUserId = authUserId,
             Email = "test@example.com",
             DisplayName = null!,
             LastLoginAt = DateTime.UtcNow,
@@ -165,10 +172,10 @@ public sealed class GetCurrentUserQueryHandlerTests
         };
 
         _authServiceMock
-            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByAuthUserIdAsync(authUserId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
 
-        var query = new GetCurrentUserQuery(userId);
+        var query = new GetCurrentUserQuery(authUserId);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
