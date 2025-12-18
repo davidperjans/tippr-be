@@ -25,10 +25,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Common\Auth\" />
-    <Folder Include="Common\Db\" />
-    <Folder Include="Leagues\" />
-  </ItemGroup>
-
 </Project>

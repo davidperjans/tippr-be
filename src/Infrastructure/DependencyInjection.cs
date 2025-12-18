@@ -40,20 +40,21 @@ namespace Infrastructure
                 }
             });
 
-            var supabaseUrl = configuration["Supabase:Url"]
-                ?? throw new InvalidOperationException("Supabase:Url is not configured");
-            var supabaseKey = configuration["Supabase:Key"]
-                ?? throw new InvalidOperationException("Supabase:Key is not configured");
+            var supabaseUrl = configuration["Supabase:Url"];
+            var supabaseKey = configuration["Supabase:Key"];
+
+            var isTesting = configuration["ASPNETCORE_ENVIRONMENT"] == "Testing";
+
+            if (!isTesting && (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey)))
+            {
+                throw new InvalidOperationException("Supabase:Url or Key is not configured");
+            }
 
             services.AddScoped<Supabase.Client>(_ =>
                 new Supabase.Client(
-                    supabaseUrl,
-                    supabaseKey,
-                    new SupabaseOptions
-                    {
-                        AutoRefreshToken = false,
-                        AutoConnectRealtime = false
-                    }
+                    supabaseUrl ?? "https://fake.url",
+                    supabaseKey ?? "fake-key",
+                    new SupabaseOptions { AutoRefreshToken = false }
                 )
             );
 

@@ -8,11 +8,23 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// DEBUG-LOGG: Se om vi ens når hit i testerna
+Console.WriteLine("DEBUG: Program.cs is starting...");
+
 // 1. Serilog Setup - Använd Configuration-baserad setup för flexibilitet
-builder.Host.UseSerilog((context, services, configuration) => configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext());
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext();
+
+    // Använd bara .ReadFrom.Services(services) om du faktiskt har registrerat 
+    // Serilog-tjänster i DI, annars skippa det i Testing
+    if (context.HostingEnvironment.EnvironmentName != "Testing")
+    {
+        configuration.ReadFrom.Services(services);
+    }
+});
 
 try
 {
@@ -76,7 +88,7 @@ try
     // 3. Build & Pipeline
     var app = builder.Build();
 
-    // Serilog Request Logging (Körs alltid, men konfigureras via appsettings)
+    //Serilog Request Logging(Körs alltid, men konfigureras via appsettings)
     app.UseSerilogRequestLogging(options =>
     {
         options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
@@ -108,7 +120,10 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Tippr API terminated unexpectedly");
+    // Detta kommer skrivas ut i test-loggen om appen kraschar
+    Console.WriteLine($"CRITICAL STARTUP ERROR: {ex.Message}");
+    Console.WriteLine(ex.StackTrace);
+    throw; // Kasta om så WebApplicationFactory märker det
 }
 finally
 {
