@@ -12,6 +12,7 @@ namespace Application.Common.Interfaces
         DbSet<LeagueSettings> LeagueSettings { get; }
         DbSet<LeagueStanding> LeagueStandings { get; }
         DbSet<Team> Teams { get; }
+        DbSet<Match> Matches { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

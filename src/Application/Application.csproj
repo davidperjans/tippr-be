@@ -21,8 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Auth\Commands\" />
-    <Folder Include="Features\Matches\Commands\" />
-    <Folder Include="Features\Matches\Queries\" />
     <Folder Include="Features\Predictions\Commands\" />
     <Folder Include="Features\Predictions\Queries\" />
     <Folder Include="Features\Teams\Commands\" />
