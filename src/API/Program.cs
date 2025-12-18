@@ -1,4 +1,5 @@
 using API.Auth;
+using API.Middleware;
 using Application;
 using Infrastructure;
 using Infrastructure.Auth;
@@ -92,6 +93,8 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
 
+builder.Services.AddTransient<ErrorHandlingMiddleware>();
+
 // --------------------
 // Build app
 // --------------------
@@ -119,6 +122,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");

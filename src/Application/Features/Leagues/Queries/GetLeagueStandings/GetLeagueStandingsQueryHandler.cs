@@ -23,7 +23,7 @@ namespace Application.Features.Leagues.Queries.GetLeagueStandings
                 .AnyAsync(l => l.Id == request.LeagueId, cancellationToken);
 
             if (!leagueExists)
-                return Result<IReadOnlyList<LeagueStandingDto>>.Failure("league not found.");
+                return Result<IReadOnlyList<LeagueStandingDto>>.NotFound("league not found.", "league.not_found");
 
             var userIsMember = await _db.LeagueMembers
                 .AnyAsync(m =>
@@ -32,7 +32,7 @@ namespace Application.Features.Leagues.Queries.GetLeagueStandings
                     cancellationToken);
 
             if (!userIsMember)
-                return Result<IReadOnlyList<LeagueStandingDto>>.Failure("not a member of this league.");
+                return Result<IReadOnlyList<LeagueStandingDto>>.Forbidden("not a member of this league.", "league.forbidden");
 
             var standings = await _db.LeagueStandings
                 .AsNoTracking()

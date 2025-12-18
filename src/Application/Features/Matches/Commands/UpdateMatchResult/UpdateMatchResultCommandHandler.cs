@@ -18,7 +18,7 @@ namespace Application.Features.Matches.Commands.UpdateMatchResult
         {
             var match = await _db.Matches.FirstOrDefaultAsync(m => m.Id == request.MatchId, ct);
             if (match is null)
-                return Result<bool>.Failure("match not found.");
+                return Result<bool>.NotFound("match not found.", "match.not_found");
 
             match.HomeScore = request.HomeScore;
             match.AwayScore = request.AwayScore;
@@ -27,7 +27,7 @@ namespace Application.Features.Matches.Commands.UpdateMatchResult
 
             await _db.SaveChangesAsync(ct);
 
-            // (Senare sprint) trigga poängberäkning + uppdatera LeagueStandings i batch
+            // TODO: (Senare sprint) trigga poängberäkning + uppdatera LeagueStandings i batch
             // DB-guiden nämner batch updates efter match. :contentReference[oaicite:9]{index=9}
 
             return Result<bool>.Success(true);

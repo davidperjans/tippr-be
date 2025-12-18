@@ -24,7 +24,7 @@ namespace Application.Features.Leagues.Commands.CreateLeague
             var exists = await _db.Leagues.AnyAsync(l => l.Name == request.Name && l.OwnerId == request.OwnerId, cancellationToken);
 
             if (exists)
-                return Result<Guid>.Failure("league already exists");
+                return Result<Guid>.Conflict("league already exists", "league.already_exists");
 
             var entity = _mapper.Map<League>(request);
 

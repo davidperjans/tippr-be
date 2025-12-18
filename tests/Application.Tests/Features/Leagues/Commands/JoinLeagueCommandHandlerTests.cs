@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Common.Interfaces;
 using Application.Features.Leagues.Commands.JoinLeague;
 using Domain.Entities;
@@ -99,7 +100,11 @@ public sealed class JoinLeagueCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("league not found");
+
+        result.Error.Should().NotBeNull();
+        result.Error!.Message.Should().Be("league not found");
+        result.Error!.Code.Should().Be("league.not_found");
+        result.Error!.Type.Should().Be(ErrorType.NotFound);
     }
 
     [Fact]
@@ -137,7 +142,10 @@ public sealed class JoinLeagueCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("invalid invite code");
+        result.Error.Should().NotBeNull();
+        result.Error!.Message.Should().Be("invalid invite code");
+        result.Error!.Code.Should().Be("league.invalid_invite_code");
+        result.Error!.Type.Should().Be(ErrorType.BusinessRule);
     }
 
     [Fact]
@@ -276,7 +284,11 @@ public sealed class JoinLeagueCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("league is full");
+
+        result.Error.Should().NotBeNull();
+        result.Error!.Message.Should().Be("league is full");
+        result.Error!.Code.Should().Be("league.full");
+        result.Error!.Type.Should().Be(ErrorType.BusinessRule);
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Common.Interfaces;
 using Application.Features.Leagues.Mapping;
 using Application.Features.Leagues.Queries.GetLeague;
@@ -103,7 +104,12 @@ public sealed class GetLeagueQueryHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("league not found");
+
+        result.Error.Should().NotBeNull();
+        result.Error!.Message.Should().Be("league not found");
+        result.Error!.Code.Should().Be("league.not_found");
+        result.Error!.Type.Should().Be(ErrorType.NotFound);
+
         result.Data.Should().BeNull();
     }
 
@@ -128,7 +134,11 @@ public sealed class GetLeagueQueryHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("league not found");
+
+        result.Error.Should().NotBeNull();
+        result.Error!.Message.Should().Be("league not found");
+        result.Error!.Code.Should().Be("league.not_found");
+        result.Error!.Type.Should().Be(ErrorType.NotFound);
     }
 
     [Fact]

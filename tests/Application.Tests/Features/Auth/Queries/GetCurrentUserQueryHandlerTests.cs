@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Common.Interfaces;
 using Application.Features.Auth.Queries.GetMe;
 using Domain.Entities;
@@ -69,7 +70,11 @@ public sealed class GetCurrentUserQueryHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("user not synced");
+
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Be("user not synced");
+        result.Error.Code.Should().Be("user.not_synced");
+        result.Error.Type.Should().Be(ErrorType.NotFound);
     }
 
     [Fact]

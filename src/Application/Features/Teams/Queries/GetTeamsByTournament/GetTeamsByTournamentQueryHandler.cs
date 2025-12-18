@@ -21,9 +21,6 @@ namespace Application.Features.Teams.Queries.GetTeamsByTournament
 
         public async Task<Result<IReadOnlyList<TeamDto>>> Handle(GetTeamsByTournamentQuery request, CancellationToken ct)
         {
-            if (request.TournamentId == Guid.Empty)
-                return Result<IReadOnlyList<TeamDto>>.Failure("tournamentId is required.");
-
             var teams = await _db.Teams
                 .AsNoTracking()
                 .Where(t => t.TournamentId == request.TournamentId)

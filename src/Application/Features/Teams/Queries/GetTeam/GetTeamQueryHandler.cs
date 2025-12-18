@@ -21,9 +21,6 @@ namespace Application.Features.Teams.Queries.GetTeam
 
         public async Task<Result<TeamDto>> Handle(GetTeamQuery request, CancellationToken ct)
         {
-            if (request.Id == Guid.Empty)
-                return Result<TeamDto>.Failure("id is required.");
-
             var team = await _db.Teams
                 .AsNoTracking()
                 .Where(t => t.Id == request.Id)
@@ -31,7 +28,7 @@ namespace Application.Features.Teams.Queries.GetTeam
                 .SingleOrDefaultAsync(ct);
 
             if (team == null)
-                return Result<TeamDto>.Failure("team not found");
+                return Result<TeamDto>.NotFound("team not found", "team.not_found");
 
             return Result<TeamDto>.Success(team);
         }
