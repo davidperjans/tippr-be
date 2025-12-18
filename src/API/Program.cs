@@ -8,127 +8,128 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DEBUG-LOGG: Se om vi ens når hit i testerna
-Console.WriteLine("DEBUG: Program.cs is starting...");
-
-// 1. Serilog Setup - Använd Configuration-baserad setup för flexibilitet
+// --------------------
+// Serilog
+// --------------------
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration
         .ReadFrom.Configuration(context.Configuration)
         .Enrich.FromLogContext();
 
-    // Använd bara .ReadFrom.Services(services) om du faktiskt har registrerat 
-    // Serilog-tjänster i DI, annars skippa det i Testing
-    if (context.HostingEnvironment.EnvironmentName != "Testing")
+    // Undvik ReadFrom.Services i Testing om inga sinks är registrerade
+    if (!context.HostingEnvironment.IsEnvironment("Testing"))
     {
         configuration.ReadFrom.Services(services);
     }
 });
 
-try
+// --------------------
+// Services
+// --------------------
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddMemoryCache();
+
+// Layers
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
+
+// CORS
+builder.Services.AddCors(options =>
 {
-    Log.Information("Starting Tippr API");
-
-    // 2. Add Services (DI Container)
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddMemoryCache();
-
-    // Layers
-    builder.Services.AddInfrastructureServices(builder.Configuration);
-    builder.Services.AddApplicationServices();
-
-    // CORS
-    builder.Services.AddCors(options =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        options.AddPolicy("AllowFrontend", policy =>
-        {
-            policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "http://localhost:5173")
-                  .AllowAnyMethod()
-                  .AllowAnyHeader()
-                  .AllowCredentials();
-        });
+        policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
+});
 
-    // Swagger
-    builder.Services.AddSwaggerGen(c =>
+// Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Tippr API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Tippr API", Version = "v1" });
-        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Paste Supabase access_token"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-            Name = "Authorization",
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT",
-            In = ParameterLocation.Header,
-            Description = "Paste Supabase access_token"
-        });
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+            new OpenApiSecurityScheme
             {
-                new OpenApiSecurityScheme {
-                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-                },
-                Array.Empty<string>()
-            }
-        });
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
+});
 
-    // Authentication & Authorization
-    builder.Services
-        .AddAuthentication("SupabaseAuth")
-        .AddScheme<SupabaseAuthenticationOptions, SupabaseAuthenticationHandler>("SupabaseAuth", _ => { });
+// --------------------
+// Authentication / Authorization
+// --------------------
+builder.Services
+    .AddAuthentication("SupabaseAuth")
+    .AddScheme<SupabaseAuthenticationOptions, SupabaseAuthenticationHandler>(
+        "SupabaseAuth", _ => { });
 
-    builder.Services.AddAuthorization(options =>
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly",
+        policy => policy.Requirements.Add(new AdminRequirement()));
+});
+
+builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
+
+// --------------------
+// Build app
+// --------------------
+var app = builder.Build();
+
+// --------------------
+// Middleware pipeline
+// --------------------
+app.UseSerilogRequestLogging(options =>
+{
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
     {
-        options.AddPolicy("AdminOnly", policy => policy.Requirements.Add(new AdminRequirement()));
-    });
-    builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
-
-    // 3. Build & Pipeline
-    var app = builder.Build();
-
-    //Serilog Request Logging(Körs alltid, men konfigureras via appsettings)
-    app.UseSerilogRequestLogging(options =>
-    {
-        options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        if (httpContext.User.Identity?.IsAuthenticated == true)
         {
-            var user = httpContext.User;
-            if (user.Identity?.IsAuthenticated == true)
-            {
-                diagnosticContext.Set("UserId", user.FindFirst("user_id")?.Value);
-            }
-        };
-    });
+            diagnosticContext.Set(
+                "UserId",
+                httpContext.User.FindFirst("user_id")?.Value
+            );
+        }
+    };
+});
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-
-    app.UseHttpsRedirection();
-    app.UseCors("AllowFrontend");
-
-    app.UseAuthentication();
-    app.UseMiddleware<UserSyncMiddleware>();
-    app.UseAuthorization();
-
-    app.MapControllers();
-
-    app.Run();
-}
-catch (Exception ex)
+if (app.Environment.IsDevelopment())
 {
-    // Detta kommer skrivas ut i test-loggen om appen kraschar
-    Console.WriteLine($"CRITICAL STARTUP ERROR: {ex.Message}");
-    Console.WriteLine(ex.StackTrace);
-    throw; // Kasta om så WebApplicationFactory märker det
-}
-finally
-{
-    Log.CloseAndFlush();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-// Gör Program-klassen synlig för Integration Tests
+app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseMiddleware<UserSyncMiddleware>();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+// Required for integration tests
 public partial class Program { }
