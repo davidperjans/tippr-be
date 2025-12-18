@@ -23,7 +23,7 @@ namespace Application.Features.Tournaments.Commands.CreateTournament
                 .AnyAsync(t => t.Name == request.Name && t.Year == request.Year, cancellationToken);
 
             if (exists)
-                return Result<Guid>.Failure("tournament already exists");
+                return Result<Guid>.Conflict("tournament already exists", "tournament.already_exists");
 
             var entity = _mapper.Map<Tournament>(request);
 

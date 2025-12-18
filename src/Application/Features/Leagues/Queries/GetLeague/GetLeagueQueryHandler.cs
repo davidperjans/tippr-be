@@ -27,7 +27,7 @@ namespace Application.Features.Leagues.Queries.GetLeague
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (dto == null)
-                return Result<LeagueDto>.Failure("league not found");
+                return Result<LeagueDto>.NotFound("league not found", "league.not_found");
 
             return Result<LeagueDto>.Success(dto);
         }

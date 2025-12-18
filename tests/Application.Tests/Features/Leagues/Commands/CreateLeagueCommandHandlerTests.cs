@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Common.Interfaces;
 using Application.Features.Leagues.Commands.CreateLeague;
 using Application.Features.Leagues.Mapping;
@@ -136,7 +137,11 @@ public sealed class CreateLeagueCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("league already exists");
+
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Be("league already exists");
+        result.Error.Code.Should().Be("league.already_exists");
+        result.Error.Type.Should().Be(ErrorType.Conflict);
 
         leaguesDbSetMock.Verify(s => s.Add(It.IsAny<League>()), Times.Never);
         dbMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);

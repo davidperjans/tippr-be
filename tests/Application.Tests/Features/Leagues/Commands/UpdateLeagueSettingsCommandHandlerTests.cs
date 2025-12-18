@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Common.Interfaces;
 using Application.Features.Leagues.Commands.UpdateLeagueSettings;
 using Application.Features.Leagues.Mapping;
@@ -132,7 +133,11 @@ public sealed class UpdateLeagueSettingsCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("league not found.");
+
+        result.Error.Should().NotBeNull();
+        result.Error!.Message.Should().Be("league not found.");
+        result.Error!.Code.Should().Be("league.not_found");
+        result.Error!.Type.Should().Be(ErrorType.NotFound);
     }
 
     [Fact]
@@ -193,7 +198,12 @@ public sealed class UpdateLeagueSettingsCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be("only the league owner can update settings.");
+
+        result.Error.Should().NotBeNull();
+        result.Error!.Message.Should().Be("only the league owner can update settings.");
+        result.Error!.Code.Should().Be("league.forbidden");
+        result.Error!.Type.Should().Be(ErrorType.Forbidden);
+
         dbMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

@@ -18,7 +18,7 @@ namespace Application.Features.Auth.Queries.GetMe
             var user = await _authService.GetByAuthUserIdAsync(request.UserId, cancellationToken);
 
             if (user == null)
-                return Result<CurrentUserResponse>.Failure("user not synced");
+                return Result<CurrentUserResponse>.NotFound("user not synced", "user.not_synced");
 
             await _authService.UpdateLastLoginAsync(user.Id, cancellationToken);
 

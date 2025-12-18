@@ -26,7 +26,7 @@ namespace Application.Features.Tournaments.Queries.GetTournamentById
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (dto == null)
-                return Result<TournamentDto>.Failure("tournament not found");
+                return Result<TournamentDto>.NotFound("tournament not found", "tournament.not_found");
 
             return Result<TournamentDto>.Success(dto);
         }

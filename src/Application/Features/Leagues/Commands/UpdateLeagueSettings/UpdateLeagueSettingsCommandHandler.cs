@@ -24,10 +24,10 @@ namespace Application.Features.Leagues.Commands.UpdateLeagueSettings
                 .FirstOrDefaultAsync(l => l.Id == request.LeagueId, ct);
 
             if (league == null)
-                return Result<LeagueSettingsDto>.Failure("league not found.");
+                return Result<LeagueSettingsDto>.NotFound("league not found.", "league.not_found");
 
             if (league.OwnerId != request.UserId)
-                return Result<LeagueSettingsDto>.Failure("only the league owner can update settings.");
+                return Result<LeagueSettingsDto>.Forbidden("only the league owner can update settings.", "league.forbidden");
 
             if (league.Settings == null)
             {

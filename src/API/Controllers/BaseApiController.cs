@@ -1,4 +1,5 @@
-﻿using Application.Common;
+﻿using API.Contracts.Errors;
+using Application.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -6,39 +7,55 @@ namespace API.Controllers
     [ApiController]
     public abstract class BaseApiController : ControllerBase
     {
-        protected ActionResult<Result> FromResult(Result result)
-        => result.IsSuccess ? Ok(result) : MapFailure(result);
+        protected ActionResult FromResult(Result result)
+        {
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
 
-        protected ActionResult<Result<T>> FromResult<T>(Result<T> result)
-            => result.IsSuccess ? Ok(result) : MapFailure(result);
+            return MapFailure(result);
+        }
+
+        protected ActionResult FromResult<T>(Result<T> result)
+        {
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+
+            return MapFailure(result);
+        }
 
         private ActionResult MapFailure(Result result)
         {
-            // Minimal heuristik tills du har ErrorCodes / ErrorType
-            var message = result.Error ?? "Request failed.";
+            var error = result.Error ?? new Error(ErrorType.Failure, "Request failed.");
 
-            if (LooksUnauthorized(message)) return Unauthorized(result);
-            if (LooksNotFound(message)) return NotFound(result);
+            var (status, rfcType) = MapStatus(error.Type);
 
-            return BadRequest(result);
+            var response = new ErrorResponse
+            {
+                Type = rfcType,
+                Title = error.Message,
+                Status = status,
+                Errors = error.ValidationErrors
+            };
+
+            return StatusCode(status, response);
         }
 
-        private static bool LooksUnauthorized(string message)
+        private static (int Status, string RfcType) MapStatus(ErrorType type)
         {
-            message = message.ToLowerInvariant();
-            return message.Contains("unauthorized")
-                || message.Contains("not authenticated")
-                || message.Contains("missing 'sub'")
-                || message.Contains("missing 'email'")
-                || message.Contains("invalid 'sub'");
-        }
-
-        private static bool LooksNotFound(string message)
-        {
-            message = message.ToLowerInvariant();
-            return message.Contains("not found")
-                || message.Contains("does not exist")
-                || message.Contains("user not synced");
+            return type switch
+            {
+                ErrorType.Validation => (400, "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+                ErrorType.BusinessRule => (400, "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+                ErrorType.NotFound => (404, "https://tools.ietf.org/html/rfc7231#section-6.5.4"),
+                ErrorType.Unauthorized => (401, "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+                ErrorType.Forbidden => (403, "https://tools.ietf.org/html/rfc7231#section-6.5.3"),
+                ErrorType.Conflict => (409, "https://tools.ietf.org/html/rfc7231#section-6.5.8"),
+                _ => (400, "https://tools.ietf.org/html/rfc7231#section-6.5.1"),
+            };
         }
     }
 }

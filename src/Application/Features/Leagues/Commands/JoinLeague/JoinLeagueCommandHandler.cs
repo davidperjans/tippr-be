@@ -21,18 +21,18 @@ namespace Application.Features.Leagues.Commands.JoinLeague
                 .FirstOrDefaultAsync(l => l.Id == request.LeagueId, cancellationToken);
 
             if (league == null)
-                return Result<bool>.Failure("league not found");
+                return Result<bool>.NotFound("league not found", "league.not_found");
 
             // If league is not public, requires code
             if (!league.IsPublic && !string.Equals(league.InviteCode, request.InviteCode, StringComparison.OrdinalIgnoreCase))
-                return Result<bool>.Failure("invalid invite code");
+                return Result<bool>.BusinessRule("invalid invite code", "league.invalid_invite_code");
 
             var alreadyMember = league.Members.Any(m => m.UserId == request.UserId);
             if (alreadyMember)
                 return Result<bool>.Success(true);
 
             if (league.MaxMembers.HasValue && league.Members.Count >= league.MaxMembers.Value)
-                return Result<bool>.Failure("league is full");
+                return Result<bool>.BusinessRule("league is full", "league.full");
 
             _db.LeagueMembers.Add(new Domain.Entities.LeagueMember
             {

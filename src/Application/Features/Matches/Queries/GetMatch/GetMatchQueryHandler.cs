@@ -28,7 +28,7 @@ namespace Application.Features.Matches.Queries.GetMatch
                 .FirstOrDefaultAsync(ct);
 
             if (match == null)
-                return Result<MatchDto>.Failure("match not found");
+                return Result<MatchDto>.NotFound("match not found", "match.not_found");
 
             return Result<MatchDto>.Success(match);
         }

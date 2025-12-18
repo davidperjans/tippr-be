@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common;
+using Application.Common.Interfaces;
 using Application.Features.Matches.Mapping;
 using Application.Features.Matches.Queries.GetMatch;
 using AutoMapper;
@@ -94,7 +95,12 @@ namespace Application.Tests.Features.Matches.Queries
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.Error.Should().Be("match not found");
+
+            result.Error.Should().NotBeNull();
+            result.Error!.Message.Should().Be("match not found");
+            result.Error!.Code.Should().Be("match.not_found");
+            result.Error!.Type.Should().Be(ErrorType.NotFound);
+
             result.Data.Should().BeNull();
         }
     }
