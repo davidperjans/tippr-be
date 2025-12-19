@@ -5,6 +5,7 @@ using MediatR;
 namespace Application.Features.Leagues.Queries.GetLeague
 {
     public sealed record GetLeagueQuery(
-        Guid LeagueId
+        Guid LeagueId,
+        Guid UserId
     ) : IRequest<Result<LeagueDto>>;
 }

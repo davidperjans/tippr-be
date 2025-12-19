@@ -2,6 +2,7 @@
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Features.Leagues.Commands.CreateLeague;
+using Application.Features.Leagues.Commands.DeleteLeague;
 using Application.Features.Leagues.Commands.JoinLeague;
 using Application.Features.Leagues.Commands.UpdateLeagueSettings;
 using Application.Features.Leagues.DTOs;
@@ -47,7 +48,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<IReadOnlyList<LeagueDto>>>> GetUserLeagues(CancellationToken ct)
+        public async Task<ActionResult<Result<IReadOnlyList<LeagueListDto>>>> GetUserLeagues(CancellationToken ct)
         {
             var query = new GetUserLeaguesQuery(_currentUser.UserId);
             var result = await _mediator.Send(query, ct);
@@ -58,7 +59,7 @@ namespace API.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Result<LeagueDto>>> GetLeagueById(Guid id, CancellationToken ct)
         {
-            var query = new GetLeagueQuery(id);
+            var query = new GetLeagueQuery(id, _currentUser.UserId);
             var result = await _mediator.Send(query, ct);
 
             return FromResult(result);
@@ -107,6 +108,15 @@ namespace API.Controllers
         {
             var query = new GetLeagueStandingsQuery(id, _currentUser.UserId);
             var result = await _mediator.Send(query, ct);
+
+            return FromResult(result);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<Result<bool>>> Delete(Guid id, CancellationToken ct)
+        {
+            var command = new DeleteLeagueCommand(id, _currentUser.UserId);
+            var result = await _mediator.Send(command, ct);
 
             return FromResult(result);
         }

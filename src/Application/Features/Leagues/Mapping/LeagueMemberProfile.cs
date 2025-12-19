@@ -9,8 +9,7 @@ namespace Application.Features.Leagues.Mapping
     {
         public LeagueMemberProfile()
         {
-            CreateMap<LeagueMember, LeagueMemberDto>()
-                .ForMember(d => d.User, o => o.MapFrom(s => s.User));
+            //CreateMap<LeagueMember, LeagueMemberDto>();
         }
     }
 }

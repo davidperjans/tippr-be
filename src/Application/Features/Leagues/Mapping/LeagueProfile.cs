@@ -9,7 +9,7 @@ namespace Application.Features.Leagues.Mapping
     {
         public LeagueProfile()
         {
-            CreateMap<League, LeagueDto>();
+            //CreateMap<League, LeagueDto>();
 
             CreateMap<CreateLeagueCommand, League>()
                 .ForMember(d => d.Id, o => o.Ignore())

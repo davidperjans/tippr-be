@@ -2,6 +2,7 @@
 using Application.Common.Interfaces;
 using Application.Features.Matches.Mapping;
 using Application.Features.Matches.Queries.GetMatch;
+using Application.Features.Teams.Mapping;
 using AutoMapper;
 using Domain.Enums;
 using FluentAssertions;
@@ -16,7 +17,8 @@ namespace Application.Tests.Features.Matches.Queries
         {
             var cfg = new MapperConfiguration(c =>
             {
-                c.AddMaps(typeof(Application.DependencyInjection).Assembly);
+                c.AddProfile<MatchProfile>();
+                c.AddProfile<TeamProfile>();
             });
             cfg.AssertConfigurationIsValid();
             return cfg.CreateMapper();
@@ -33,22 +35,22 @@ namespace Application.Tests.Features.Matches.Queries
             var awayTeamId = Guid.NewGuid();
 
             var matches = new List<Domain.Entities.Match>
-        {
-            new()
             {
-                Id = matchId,
-                TournamentId = tournamentId,
-                HomeTeamId = homeTeamId,
-                AwayTeamId = awayTeamId,
-                MatchDate = new DateTime(2026, 06, 01, 18, 00, 00, DateTimeKind.Utc),
-                Stage = MatchStage.Group,
-                Status = MatchStatus.Scheduled,
-                HomeScore = null,
-                AwayScore = null,
-                Venue = "Arena",
-                UpdatedAt = DateTime.UtcNow
-            }
-        };
+                new()
+                {
+                    Id = matchId,
+                    TournamentId = tournamentId,
+                    HomeTeamId = homeTeamId,
+                    AwayTeamId = awayTeamId,
+                    MatchDate = new DateTime(2026, 06, 01, 18, 00, 00, DateTimeKind.Utc),
+                    Stage = MatchStage.Group,
+                    Status = MatchStatus.Scheduled,
+                    HomeScore = null,
+                    AwayScore = null,
+                    Venue = "Arena",
+                    UpdatedAt = DateTime.UtcNow
+                }
+            };
 
             var matchesDbSetMock = matches.BuildMockDbSet();
 

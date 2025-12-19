@@ -6,5 +6,5 @@ namespace Application.Features.Matches.Queries.GetMatch
 {
     public sealed record GetMatchQuery(
         Guid Id
-    ) : IRequest<Result<MatchDto>>;
+    ) : IRequest<Result<MatchDetailDto>>;
 }

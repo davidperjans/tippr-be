@@ -77,7 +77,7 @@ public sealed class GetUserLeaguesQueryHandlerTests
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
 
-        var handler = new GetUserLeaguesQueryHandler(dbMock.Object, mapper);
+        var handler = new GetUserLeaguesQueryHandler(dbMock.Object);
         var query = new GetUserLeaguesQuery(userId);
 
         // Act
@@ -125,7 +125,7 @@ public sealed class GetUserLeaguesQueryHandlerTests
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
 
-        var handler = new GetUserLeaguesQueryHandler(dbMock.Object, mapper);
+        var handler = new GetUserLeaguesQueryHandler(dbMock.Object);
         var query = new GetUserLeaguesQuery(userId);
 
         // Act
@@ -207,7 +207,7 @@ public sealed class GetUserLeaguesQueryHandlerTests
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
 
-        var handler = new GetUserLeaguesQueryHandler(dbMock.Object, mapper);
+        var handler = new GetUserLeaguesQueryHandler(dbMock.Object);
         var query = new GetUserLeaguesQuery(userId);
 
         // Act
@@ -234,7 +234,7 @@ public sealed class GetUserLeaguesQueryHandlerTests
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
 
-        var handler = new GetUserLeaguesQueryHandler(dbMock.Object, mapper);
+        var handler = new GetUserLeaguesQueryHandler(dbMock.Object);
         var query = new GetUserLeaguesQuery(nonExistentUserId);
 
         // Act

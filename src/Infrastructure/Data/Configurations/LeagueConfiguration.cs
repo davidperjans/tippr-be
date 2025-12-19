@@ -69,6 +69,7 @@ namespace Infrastructure.Data.Configurations
             builder.HasOne(l => l.Settings)
                 .WithOne(ls => ls.League)
                 .HasForeignKey<LeagueSettings>(ls => ls.LeagueId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(l => l.Members)

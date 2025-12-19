@@ -8,18 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Matches.Queries.GetMatchesByDate
 {
-    public sealed class GetMatchesByDateQueryHandler : IRequestHandler<GetMatchesByDateQuery, Result<IReadOnlyList<MatchDto>>>
+    public sealed class GetMatchesByDateQueryHandler : IRequestHandler<GetMatchesByDateQuery, Result<IReadOnlyList<MatchListItemDto>>>
     {
         private readonly ITipprDbContext _db;
-        private readonly IMapper _mapper;
 
-        public GetMatchesByDateQueryHandler(ITipprDbContext db, IMapper mapper)
+        public GetMatchesByDateQueryHandler(ITipprDbContext db)
         {
             _db = db;
-            _mapper = mapper;
         }
 
-        public async Task<Result<IReadOnlyList<MatchDto>>> Handle(GetMatchesByDateQuery request, CancellationToken ct)
+        public async Task<Result<IReadOnlyList<MatchListItemDto>>> Handle(GetMatchesByDateQuery request, CancellationToken ct)
         {
             var startUtc = request.Date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
             var endUtc = startUtc.AddDays(1);
@@ -28,10 +26,28 @@ namespace Application.Features.Matches.Queries.GetMatchesByDate
                 .AsNoTracking()
                 .Where(m => m.MatchDate >= startUtc && m.MatchDate < endUtc)
                 .OrderBy(m => m.MatchDate)
-                .ProjectTo<MatchDto>(_mapper.ConfigurationProvider)
+                .Select(m => new MatchListItemDto
+                {
+                    Id = m.Id,
+                    TournamentId = m.TournamentId,
+
+                    HomeTeamId = m.HomeTeamId,
+                    HomeTeamName = m.HomeTeam.Name,
+                    HomeTeamLogoUrl = m.HomeTeam.FlagUrl,
+
+                    AwayTeamId = m.AwayTeamId,
+                    AwayTeamName = m.AwayTeam.Name,
+                    AwayTeamLogoUrl = m.AwayTeam.FlagUrl,
+
+                    MatchDate = m.MatchDate,
+                    Stage = m.Stage,
+                    Status = m.Status,
+                    HomeScore = m.HomeScore,
+                    AwayScore = m.AwayScore
+                })
                 .ToListAsync(ct);
 
-            return Result<IReadOnlyList<MatchDto>>.Success(matches);
+            return Result<IReadOnlyList<MatchListItemDto>>.Success(matches);
         }
     }
 }
