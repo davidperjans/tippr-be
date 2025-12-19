@@ -17,7 +17,7 @@ namespace Domain.Entities
         // Navigation properties
         public Tournament Tournament { get; set; } = null!;
         public User Owner { get; set; } = null!;
-        public LeagueSettings? Settings { get; set; }
+        public LeagueSettings Settings { get; set; }
         public ICollection<LeagueMember> Members { get; set; } = new List<LeagueMember>();
         public ICollection<Prediction> Predictions { get; set; } = new List<Prediction>();
         public ICollection<BonusPrediction> BonusPredictions { get; set; } = new List<BonusPrediction>();

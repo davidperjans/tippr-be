@@ -6,5 +6,5 @@ namespace Application.Features.Matches.Queries.GetMatchesByTournament
 {
     public sealed record GetMatchesByTournamentQuery(
         Guid TournamentId
-    ) : IRequest<Result<IReadOnlyList<MatchDto>>>;
+    ) : IRequest<Result<IReadOnlyList<MatchListItemDto>>>;
 }

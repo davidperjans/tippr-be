@@ -8,7 +8,7 @@ namespace Application.Features.Matches.Mapping
     {
         public MatchProfile()
         {
-            CreateMap<Match, MatchDto>();
+            CreateMap<Match, MatchDetailDto>();
         }
     }
 }

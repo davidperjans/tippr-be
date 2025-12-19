@@ -6,5 +6,5 @@ namespace Application.Features.Matches.Queries.GetMatchesByDate
 {
     public sealed record GetMatchesByDateQuery(
         DateOnly Date
-    ) : IRequest<Result<IReadOnlyList<MatchDto>>>;
+    ) : IRequest<Result<IReadOnlyList<MatchListItemDto>>>;
 }

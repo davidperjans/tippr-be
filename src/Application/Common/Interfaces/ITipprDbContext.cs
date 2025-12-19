@@ -14,6 +14,8 @@ namespace Application.Common.Interfaces
         DbSet<Team> Teams { get; }
         DbSet<Match> Matches { get; }
         DbSet<Prediction> Predictions { get; }
+        DbSet<BonusQuestion> BonusQuestions { get; }
+        DbSet<BonusPrediction> BonusPredictions { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

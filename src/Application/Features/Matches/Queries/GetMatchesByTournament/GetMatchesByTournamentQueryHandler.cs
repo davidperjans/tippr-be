@@ -8,27 +8,43 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Matches.Queries.GetMatchesByTournament
 {
-    public sealed class GetMatchesByTournamentQueryHandler : IRequestHandler<GetMatchesByTournamentQuery, Result<IReadOnlyList<MatchDto>>>
+    public sealed class GetMatchesByTournamentQueryHandler : IRequestHandler<GetMatchesByTournamentQuery, Result<IReadOnlyList<MatchListItemDto>>>
     {
         private readonly ITipprDbContext _db;
-        private readonly IMapper _mapper;
 
-        public GetMatchesByTournamentQueryHandler(ITipprDbContext db, IMapper mapper)
+        public GetMatchesByTournamentQueryHandler(ITipprDbContext db)
         {
             _db = db;
-            _mapper = mapper;
         }
 
-        public async Task<Result<IReadOnlyList<MatchDto>>> Handle(GetMatchesByTournamentQuery request, CancellationToken ct)
+        public async Task<Result<IReadOnlyList<MatchListItemDto>>> Handle(GetMatchesByTournamentQuery request, CancellationToken ct)
         {
             var matches = await _db.Matches
                 .AsNoTracking()
                 .Where(m => m.TournamentId == request.TournamentId)
                 .OrderBy(m => m.MatchDate)
-                .ProjectTo<MatchDto>(_mapper.ConfigurationProvider)
+                .Select(m => new MatchListItemDto
+                {
+                    Id = m.Id,
+                    TournamentId = m.TournamentId,
+
+                    HomeTeamId = m.HomeTeamId,
+                    HomeTeamName = m.HomeTeam.Name,
+                    HomeTeamLogoUrl = m.HomeTeam.FlagUrl,
+
+                    AwayTeamId = m.AwayTeamId,
+                    AwayTeamName = m.AwayTeam.Name,
+                    AwayTeamLogoUrl = m.AwayTeam.FlagUrl,
+
+                    MatchDate = m.MatchDate,
+                    Stage = m.Stage,
+                    Status = m.Status,
+                    HomeScore = m.HomeScore,
+                    AwayScore = m.AwayScore
+                })
                 .ToListAsync(ct);
 
-            return Result<IReadOnlyList<MatchDto>>.Success(matches);
+            return Result<IReadOnlyList<MatchListItemDto>>.Success(matches);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<IReadOnlyList<MatchDto>>>> Get([FromQuery] Guid? tournamentId, [FromQuery] DateOnly? date, CancellationToken ct)
+        public async Task<ActionResult<Result<IReadOnlyList<MatchListItemDto>>>> Get([FromQuery] Guid? tournamentId, [FromQuery] DateOnly? date, CancellationToken ct)
         {
             if (tournamentId.HasValue)
                 return FromResult(await _mediator.Send(new GetMatchesByTournamentQuery(tournamentId.Value)));
@@ -35,7 +35,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<Result<MatchDto>>> GetById(Guid id, CancellationToken ct)
+        public async Task<ActionResult<Result<MatchDetailDto>>> GetById(Guid id, CancellationToken ct)
         {
             var query = new GetMatchQuery(id);
             var result = await _mediator.Send(query, ct);

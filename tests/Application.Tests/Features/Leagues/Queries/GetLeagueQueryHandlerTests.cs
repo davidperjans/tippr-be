@@ -4,6 +4,7 @@ using Application.Features.Leagues.Mapping;
 using Application.Features.Leagues.Queries.GetLeague;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using FluentAssertions;
 using MockQueryable.Moq;
 using Moq;
@@ -12,47 +13,38 @@ namespace Application.Tests.Features.Leagues.Queries;
 
 public sealed class GetLeagueQueryHandlerTests
 {
-    private static IMapper CreateMapper()
-    {
-        var cfg = new MapperConfiguration(c => c.AddProfile<LeagueProfile>());
-        cfg.AssertConfigurationIsValid();
-        return cfg.CreateMapper();
-    }
 
     [Fact]
     public async Task Handle_Should_Return_League_When_Found()
     {
         // Arrange
-        var mapper = CreateMapper();
         var leagueId = Guid.NewGuid();
-        var ownerId = Guid.NewGuid();
         var tournamentId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
 
         var leagues = new List<League>
-        {
-            new()
             {
-                Id = leagueId,
-                Name = "Test League",
-                Description = "A test league for testing",
-                TournamentId = tournamentId,
-                OwnerId = ownerId,
-                InviteCode = "ABC12345",
-                IsPublic = true,
-                IsGlobal = false,
-                MaxMembers = 50,
-                ImageUrl = "https://example.com/league.png",
-                CreatedAt = DateTime.UtcNow
-            }
-        };
+                CreateLeague(
+                    leagueId: leagueId,
+                    tournamentId: tournamentId,
+                    ownerId: ownerId,
+                    name: "Test League",
+                    inviteCode: "ABC12345",
+                    description: "A test league for testing",
+                    isPublic: true,
+                    isGlobal: false,
+                    maxMembers: 50,
+                    imageUrl: "https://example.com/league.png"
+                )
+            };
 
         var leaguesDbSetMock = leagues.BuildMockDbSet();
 
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.Leagues).Returns(leaguesDbSetMock.Object);
 
-        var handler = new GetLeagueQueryHandler(dbMock.Object, mapper);
-        var query = new GetLeagueQuery(leagueId);
+        var handler = new GetLeagueQueryHandler(dbMock.Object);
+        var query = new GetLeagueQuery(leagueId, ownerId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -60,7 +52,9 @@ public sealed class GetLeagueQueryHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.Data.Should().NotBeNull();
-        result.Data!.Name.Should().Be("Test League");
+
+        result.Data!.Id.Should().Be(leagueId);
+        result.Data.Name.Should().Be("Test League");
         result.Data.Description.Should().Be("A test league for testing");
         result.Data.TournamentId.Should().Be(tournamentId);
         result.Data.OwnerId.Should().Be(ownerId);
@@ -69,13 +63,19 @@ public sealed class GetLeagueQueryHandlerTests
         result.Data.IsGlobal.Should().BeFalse();
         result.Data.MaxMembers.Should().Be(50);
         result.Data.ImageUrl.Should().Be("https://example.com/league.png");
+
+        // Om din LeagueDto innehåller dessa:
+        result.Data.IsOwner.Should().BeTrue();
+        result.Data.MemberCount.Should().Be(1);
+        result.Data.MyRank.Should().Be(1);
+        result.Data.MyTotalPoints.Should().Be(0);
     }
 
     [Fact]
     public async Task Handle_Should_Return_Failure_When_League_Not_Found()
     {
         // Arrange
-        var mapper = CreateMapper();
+        var ownerId = Guid.NewGuid();
         var nonExistentId = Guid.NewGuid();
 
         var leagues = new List<League>
@@ -85,7 +85,7 @@ public sealed class GetLeagueQueryHandlerTests
                 Id = Guid.NewGuid(),
                 Name = "Other League",
                 TournamentId = Guid.NewGuid(),
-                OwnerId = Guid.NewGuid(),
+                OwnerId = ownerId,
                 InviteCode = "XYZ98765",
                 CreatedAt = DateTime.UtcNow
             }
@@ -96,8 +96,8 @@ public sealed class GetLeagueQueryHandlerTests
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.Leagues).Returns(leaguesDbSetMock.Object);
 
-        var handler = new GetLeagueQueryHandler(dbMock.Object, mapper);
-        var query = new GetLeagueQuery(nonExistentId);
+        var handler = new GetLeagueQueryHandler(dbMock.Object);
+        var query = new GetLeagueQuery(nonExistentId, ownerId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -117,8 +117,8 @@ public sealed class GetLeagueQueryHandlerTests
     public async Task Handle_Should_Return_Failure_When_No_Leagues_Exist()
     {
         // Arrange
-        var mapper = CreateMapper();
         var anyId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
 
         var leagues = new List<League>();
         var leaguesDbSetMock = leagues.BuildMockDbSet();
@@ -126,8 +126,8 @@ public sealed class GetLeagueQueryHandlerTests
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.Leagues).Returns(leaguesDbSetMock.Object);
 
-        var handler = new GetLeagueQueryHandler(dbMock.Object, mapper);
-        var query = new GetLeagueQuery(anyId);
+        var handler = new GetLeagueQueryHandler(dbMock.Object);
+        var query = new GetLeagueQuery(anyId, ownerId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -145,33 +145,33 @@ public sealed class GetLeagueQueryHandlerTests
     public async Task Handle_Should_Return_League_With_Null_Optional_Fields()
     {
         // Arrange
-        var mapper = CreateMapper();
         var leagueId = Guid.NewGuid();
+        var tournamentId = Guid.NewGuid();
+        var ownerId = Guid.NewGuid();
 
         var leagues = new List<League>
-        {
-            new()
             {
-                Id = leagueId,
-                Name = "Minimal League",
-                Description = null,
-                TournamentId = Guid.NewGuid(),
-                OwnerId = Guid.NewGuid(),
-                InviteCode = "MIN00001",
-                IsPublic = false,
-                MaxMembers = null,
-                ImageUrl = null,
-                CreatedAt = DateTime.UtcNow
-            }
-        };
+                CreateLeague(
+                    leagueId: leagueId,
+                    tournamentId: tournamentId,
+                    ownerId: ownerId,
+                    name: "Minimal League",
+                    inviteCode: "MIN00001",
+                    description: null,
+                    isPublic: false,
+                    isGlobal: false,
+                    maxMembers: null,
+                    imageUrl: null
+                )
+            };
 
         var leaguesDbSetMock = leagues.BuildMockDbSet();
 
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.Leagues).Returns(leaguesDbSetMock.Object);
 
-        var handler = new GetLeagueQueryHandler(dbMock.Object, mapper);
-        var query = new GetLeagueQuery(leagueId);
+        var handler = new GetLeagueQueryHandler(dbMock.Object);
+        var query = new GetLeagueQuery(leagueId, ownerId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -179,8 +179,87 @@ public sealed class GetLeagueQueryHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.Data.Should().NotBeNull();
-        result.Data!.Description.Should().BeNull();
+
+        result.Data!.Id.Should().Be(leagueId);
+        result.Data.Name.Should().Be("Minimal League");
+        result.Data.Description.Should().BeNull();
         result.Data.MaxMembers.Should().BeNull();
         result.Data.ImageUrl.Should().BeNull();
+
+        // Om din LeagueDto innehåller dessa (som du varit inne på):
+        result.Data.IsOwner.Should().BeTrue();
+        result.Data.MemberCount.Should().Be(1);
+        result.Data.MyRank.Should().Be(1);
+        result.Data.MyTotalPoints.Should().Be(0);
+    }
+
+    private static League CreateLeague(
+            Guid leagueId,
+            Guid tournamentId,
+            Guid ownerId,
+            string name,
+            string inviteCode,
+            string? description = null,
+            bool isPublic = false,
+            bool isGlobal = false,
+            int? maxMembers = null,
+            string? imageUrl = null)
+    {
+        var league = new League
+        {
+            Id = leagueId,
+            TournamentId = tournamentId,
+            OwnerId = ownerId,
+            Name = name,
+            Description = description,
+            InviteCode = inviteCode,
+            IsPublic = isPublic,
+            IsGlobal = isGlobal,
+            MaxMembers = maxMembers,
+            ImageUrl = imageUrl,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+
+            // Viktigt: Settings får inte vara null (du har gjort den required)
+            Settings = new LeagueSettings
+            {
+                LeagueId = leagueId
+                // Sätt fler defaults här om din LeagueSettings kräver det
+            },
+
+            // Viktigt: initiera collections så .Count / .Any / .FirstOrDefault inte NRE:ar
+            Members = new List<LeagueMember>(),
+            Standings = new List<LeagueStanding>()
+        };
+
+        // owner är medlem
+        league.Members.Add(new LeagueMember
+        {
+            LeagueId = leagueId,
+            UserId = ownerId,
+            JoinedAt = DateTime.UtcNow,
+            IsAdmin = true,
+            IsMuted = false,
+
+            User = new User
+            {
+                Id = ownerId,
+                Username = "owner",
+                AvatarUrl = null
+            }
+        });
+
+        // owner har en standing (så MyRank/MyTotalPoints kan beräknas)
+        league.Standings.Add(new LeagueStanding
+        {
+            LeagueId = leagueId,
+            UserId = ownerId,
+            Rank = 1,
+            TotalPoints = 0,
+            MatchPoints = 0,
+            BonusPoints = 0
+        });
+
+        return league;
     }
 }

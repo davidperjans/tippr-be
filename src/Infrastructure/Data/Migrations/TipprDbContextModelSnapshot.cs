@@ -998,7 +998,8 @@ namespace Infrastructure.Data.Migrations
 
                     b.Navigation("Predictions");
 
-                    b.Navigation("Settings");
+                    b.Navigation("Settings")
+                        .IsRequired();
 
                     b.Navigation("Standings");
                 });

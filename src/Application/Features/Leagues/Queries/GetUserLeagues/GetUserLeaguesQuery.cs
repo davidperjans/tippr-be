@@ -6,5 +6,5 @@ namespace Application.Features.Leagues.Queries.GetUserLeagues
 {
     public sealed record GetUserLeaguesQuery(
         Guid UserId
-    ) : IRequest<Result<IReadOnlyList<LeagueDto>>>;
+    ) : IRequest<Result<IReadOnlyList<LeagueListDto>>>;
 }

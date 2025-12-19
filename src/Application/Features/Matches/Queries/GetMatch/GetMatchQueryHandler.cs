@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Matches.Queries.GetMatch
 {
-    public sealed class GetMatchQueryHandler : IRequestHandler<GetMatchQuery, Result<MatchDto>>
+    public sealed class GetMatchQueryHandler : IRequestHandler<GetMatchQuery, Result<MatchDetailDto>>
     {
         private readonly ITipprDbContext _db;
         private readonly IMapper _mapper;
@@ -19,18 +19,18 @@ namespace Application.Features.Matches.Queries.GetMatch
             _mapper = mapper;
         }
 
-        public async Task<Result<MatchDto>> Handle(GetMatchQuery request, CancellationToken ct)
+        public async Task<Result<MatchDetailDto>> Handle(GetMatchQuery request, CancellationToken ct)
         {
             var match = await _db.Matches
                 .AsNoTracking()
                 .Where(m => m.Id == request.Id)
-                .ProjectTo<MatchDto>(_mapper.ConfigurationProvider)
+                .ProjectTo<MatchDetailDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(ct);
 
             if (match == null)
-                return Result<MatchDto>.NotFound("match not found", "match.not_found");
+                return Result<MatchDetailDto>.NotFound("match not found", "match.not_found");
 
-            return Result<MatchDto>.Success(match);
+            return Result<MatchDetailDto>.Success(match);
         }
     }
 }
