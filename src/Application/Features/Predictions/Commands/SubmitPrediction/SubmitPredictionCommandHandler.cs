@@ -72,10 +72,11 @@ namespace Application.Features.Predictions.Commands.SubmitPrediction
                 AwayScore = request.AwayScore,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                PointsEarned = null
+                PointsEarned = 0,
+                IsScored = false
             };
 
-            // Points-ready: om matchen redan har resultat kan vi räkna direkt
+            // Points-ready: if match already has result, calculate points immediately
             if (match.HomeScore.HasValue && match.AwayScore.HasValue)
             {
                 entity.PointsEarned = _points.CalculateMatchPoints(
@@ -85,6 +86,9 @@ namespace Application.Features.Predictions.Commands.SubmitPrediction
                     actualAway: match.AwayScore.Value,
                     league.Settings
                 );
+                entity.IsScored = true;
+                entity.ScoredAt = DateTime.UtcNow;
+                entity.ScoredResultVersion = match.ResultVersion;
             }
 
             _db.Predictions.Add(entity);

@@ -22,7 +22,7 @@ namespace Application.Features.Auth.Queries.GetMe
 
             await _authService.UpdateLastLoginAsync(user.Id, cancellationToken);
 
-            var resultDto = new CurrentUserResponse(user.Id, user.Email, user.DisplayName, user.LastLoginAt ?? user.CreatedAt);
+            var resultDto = new CurrentUserResponse(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.LastLoginAt ?? user.CreatedAt);
 
             return Result<CurrentUserResponse>.Success(resultDto);
         }

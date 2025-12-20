@@ -9,7 +9,7 @@ namespace Domain.Entities
         public int TotalPoints { get; set; } = 0;
         public int MatchPoints { get; set; } = 0;
         public int BonusPoints { get; set; } = 0;
-        public int Rank { get; set; }
+        public int Rank { get; set; } = 1;
         public int? PreviousRank { get; set; }
 
         // Navigation properties

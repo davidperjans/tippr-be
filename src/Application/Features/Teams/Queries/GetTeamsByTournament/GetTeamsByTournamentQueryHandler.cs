@@ -24,7 +24,7 @@ namespace Application.Features.Teams.Queries.GetTeamsByTournament
             var teams = await _db.Teams
                 .AsNoTracking()
                 .Where(t => t.TournamentId == request.TournamentId)
-                .OrderBy(t => t.Name)
+                .OrderBy(t => t.FifaRank)
                 .ProjectTo<TeamDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(ct);
 

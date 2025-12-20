@@ -65,6 +65,8 @@ namespace Application.Features.Leagues.Queries.GetLeague
 
                     Settings = new LeagueSettingsDto
                     {
+                        Id = l.Settings.Id,
+                        LeagueId = l.Settings.LeagueId,
                         PredictionMode = l.Settings.PredictionMode.ToString(),
                         DeadlineMinutes = l.Settings.DeadlineMinutes,
                         PointsCorrectScore = l.Settings.PointsCorrectScore,

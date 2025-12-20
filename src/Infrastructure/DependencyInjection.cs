@@ -59,9 +59,16 @@ namespace Infrastructure
                 )
             );
 
+            services.Configure<SupabaseStorageOptions>(opts =>
+            {
+                opts.Url = supabaseUrl ?? "";
+                opts.ServiceKey = supabaseKey ?? "";
+            });
+
             // HttpContextAccessor
             services.AddHttpContextAccessor();
 
+            services.AddHttpClient<IAvatarStorage, SupabaseAvatarStorage>();
 
             // Services
             services.AddScoped<ITipprDbContext>(sp =>
@@ -70,6 +77,7 @@ namespace Infrastructure
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICurrentUser, CurrentUser>();
             services.AddScoped<IPointsCalculator, PointsCalculator>();
+            services.AddScoped<IStandingsService, StandingsService>();
 
             return services;
         }

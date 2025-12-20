@@ -2,6 +2,7 @@
 {
     public sealed class LeagueSettingsDto
     {
+        public Guid Id { get; set; }
         public Guid LeagueId { get; set; }
 
         public string PredictionMode { get; set; } = string.Empty;

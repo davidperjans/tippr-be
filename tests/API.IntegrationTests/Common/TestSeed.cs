@@ -53,7 +53,6 @@ public static class TestSeed
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2025, 1, 1),
                 EndDate = new DateTime(2025, 12, 31),
-                Country = "SE",
                 IsActive = true
             });
 

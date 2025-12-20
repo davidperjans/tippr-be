@@ -16,7 +16,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: "A test league",
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: true,
             MaxMembers: 50,
             ImageUrl: "https://example.com/image.png"
@@ -37,7 +36,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: null
@@ -60,7 +58,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: name!,
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: null
@@ -82,7 +79,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: longName,
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: null
@@ -104,7 +100,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: exactName,
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: null
@@ -125,7 +120,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: null,
             TournamentId: Guid.Empty,
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: null
@@ -139,27 +133,6 @@ public sealed class CreateLeagueCommandValidatorTests
     }
 
     [Fact]
-    public void Should_Fail_When_OwnerId_Is_Empty()
-    {
-        // Arrange
-        var command = new CreateLeagueCommand(
-            Name: "My League",
-            Description: null,
-            TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.Empty,
-            IsPublic: false,
-            MaxMembers: null,
-            ImageUrl: null
-        );
-
-        // Act
-        var result = _validator.TestValidate(command);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.OwnerId);
-    }
-
-    [Fact]
     public void Should_Fail_When_Description_Exceeds_500_Characters()
     {
         // Arrange
@@ -168,7 +141,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: longDescription,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: null
@@ -190,7 +162,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: exactDescription,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: null
@@ -214,7 +185,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: maxMembers,
             ImageUrl: null
@@ -235,7 +205,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: 1001,
             ImageUrl: null
@@ -259,7 +228,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: maxMembers,
             ImageUrl: null
@@ -281,7 +249,6 @@ public sealed class CreateLeagueCommandValidatorTests
             Name: "My League",
             Description: null,
             TournamentId: Guid.NewGuid(),
-            OwnerId: Guid.NewGuid(),
             IsPublic: false,
             MaxMembers: null,
             ImageUrl: longUrl

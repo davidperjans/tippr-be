@@ -4,6 +4,8 @@ using Application.Common.Interfaces;
 using Application.Features.Leagues.Commands.CreateLeague;
 using Application.Features.Leagues.Commands.DeleteLeague;
 using Application.Features.Leagues.Commands.JoinLeague;
+using Application.Features.Leagues.Commands.LeaveLeague;
+using Application.Features.Leagues.Commands.RecalculateStandings;
 using Application.Features.Leagues.Commands.UpdateLeagueSettings;
 using Application.Features.Leagues.DTOs;
 using Application.Features.Leagues.Queries.GetLeague;
@@ -35,8 +37,7 @@ namespace API.Controllers
             var command = new CreateLeagueCommand(
                 request.Name, 
                 request.Description, 
-                request.TournamentId, 
-                _currentUser.UserId, 
+                request.TournamentId,  
                 request.IsPublic, 
                 request.MaxMembers, 
                 request.ImageUrl
@@ -68,7 +69,16 @@ namespace API.Controllers
         [HttpPost("{id:guid}/join")]
         public async Task<ActionResult<Result<bool>>> JoinLeague(Guid id, [FromBody] JoinLeagueRequest request, CancellationToken ct)
         {
-            var command = new JoinLeagueCommand(id, _currentUser.UserId, request.InviteCode);
+            var command = new JoinLeagueCommand(id, request.InviteCode);
+            var result = await _mediator.Send(command, ct);
+
+            return FromResult(result);
+        }
+
+        [HttpPost("{id:guid}/leave")]
+        public async Task<ActionResult<Result<bool>>> LeaveLeague(Guid id, CancellationToken ct)
+        {
+            var command = new LeaveLeagueCommand(id);
             var result = await _mediator.Send(command, ct);
 
             return FromResult(result);
@@ -108,6 +118,19 @@ namespace API.Controllers
         {
             var query = new GetLeagueStandingsQuery(id, _currentUser.UserId);
             var result = await _mediator.Send(query, ct);
+
+            return FromResult(result);
+        }
+
+        /// <summary>
+        /// Triggers a full recalculation of standings for a league.
+        /// Use this endpoint for data integrity checks or after manual corrections.
+        /// </summary>
+        [HttpPost("{id:guid}/standings/recalculate")]
+        public async Task<ActionResult<Result<bool>>> RecalculateStandings(Guid id, CancellationToken ct)
+        {
+            var command = new RecalculateStandingsCommand(id);
+            var result = await _mediator.Send(command, ct);
 
             return FromResult(result);
         }

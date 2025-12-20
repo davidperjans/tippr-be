@@ -98,7 +98,7 @@ public sealed class GetLeagueStandingsQueryHandlerTests
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
         dbMock.Setup(x => x.LeagueStandings).Returns(standingsDbSetMock.Object);
 
-        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object, mapper);
+        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object);
         var query = new GetLeagueStandingsQuery(leagueId, userId);
 
         // Act
@@ -136,7 +136,7 @@ public sealed class GetLeagueStandingsQueryHandlerTests
         var dbMock = new Mock<ITipprDbContext>();
         dbMock.Setup(x => x.Leagues).Returns(leaguesDbSetMock.Object);
 
-        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object, mapper);
+        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object);
         var query = new GetLeagueStandingsQuery(nonExistentLeagueId, userId);
 
         // Act
@@ -185,7 +185,7 @@ public sealed class GetLeagueStandingsQueryHandlerTests
         dbMock.Setup(x => x.Leagues).Returns(leaguesDbSetMock.Object);
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
 
-        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object, mapper);
+        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object);
         var query = new GetLeagueStandingsQuery(leagueId, nonMemberUserId);
 
         // Act
@@ -237,7 +237,7 @@ public sealed class GetLeagueStandingsQueryHandlerTests
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
         dbMock.Setup(x => x.LeagueStandings).Returns(standingsDbSetMock.Object);
 
-        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object, mapper);
+        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object);
         var query = new GetLeagueStandingsQuery(leagueId, userId);
 
         // Act
@@ -303,7 +303,7 @@ public sealed class GetLeagueStandingsQueryHandlerTests
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
         dbMock.Setup(x => x.LeagueStandings).Returns(standingsDbSetMock.Object);
 
-        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object, mapper);
+        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object);
         var query = new GetLeagueStandingsQuery(leagueId, userId);
 
         // Act
@@ -320,6 +320,8 @@ public sealed class GetLeagueStandingsQueryHandlerTests
         standing.MatchPoints.Should().Be(80);
         standing.BonusPoints.Should().Be(20);
         standing.Rank.Should().Be(1);
+        standing.PreviousRank.Should().Be(3);
+        standing.RankChange.Should().Be(2); // Moved up from 3rd to 1st (3 - 1 = 2)
     }
 
     [Fact]
@@ -384,7 +386,7 @@ public sealed class GetLeagueStandingsQueryHandlerTests
         dbMock.Setup(x => x.LeagueMembers).Returns(leagueMembersDbSetMock.Object);
         dbMock.Setup(x => x.LeagueStandings).Returns(standingsDbSetMock.Object);
 
-        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object, mapper);
+        var handler = new GetLeagueStandingsQueryHandler(dbMock.Object);
         var query = new GetLeagueStandingsQuery(leagueId1, userId);
 
         // Act

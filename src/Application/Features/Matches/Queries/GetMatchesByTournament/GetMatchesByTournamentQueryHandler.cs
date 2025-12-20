@@ -31,11 +31,15 @@ namespace Application.Features.Matches.Queries.GetMatchesByTournament
                     HomeTeamId = m.HomeTeamId,
                     HomeTeamName = m.HomeTeam.Name,
                     HomeTeamLogoUrl = m.HomeTeam.FlagUrl,
+                    HomeTeamFifaRank = m.HomeTeam.FifaRank,
 
                     AwayTeamId = m.AwayTeamId,
                     AwayTeamName = m.AwayTeam.Name,
                     AwayTeamLogoUrl = m.AwayTeam.FlagUrl,
+                    AwayTeamFifaRank = m.AwayTeam.FifaRank,
 
+                    GroupName = m.HomeTeam.GroupName ?? m.AwayTeam.GroupName!,
+                    Venue = m.Venue!,
                     MatchDate = m.MatchDate,
                     Stage = m.Stage,
                     Status = m.Status,

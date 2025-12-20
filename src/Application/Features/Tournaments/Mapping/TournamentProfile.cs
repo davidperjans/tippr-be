@@ -9,7 +9,8 @@ namespace Application.Features.Tournaments.Mapping
     {
         public TournamentProfile()
         {
-            CreateMap<Tournament, TournamentDto>();
+            CreateMap<Tournament, TournamentDto>()
+                .ForMember(d => d.Country, o => o.Ignore());
 
             CreateMap<CreateTournamentCommand, Tournament>()
                 .ForMember(d => d.Id, o => o.Ignore())
@@ -19,7 +20,8 @@ namespace Application.Features.Tournaments.Mapping
                 .ForMember(d => d.Teams, o => o.Ignore())
                 .ForMember(d => d.Matches, o => o.Ignore())
                 .ForMember(d => d.BonusQuestions, o => o.Ignore())
-                .ForMember(d => d.Leagues, o => o.Ignore());
+                .ForMember(d => d.Leagues, o => o.Ignore())
+                .ForMember(d => d.Countries, o => o.Ignore());
         }
     }
 }

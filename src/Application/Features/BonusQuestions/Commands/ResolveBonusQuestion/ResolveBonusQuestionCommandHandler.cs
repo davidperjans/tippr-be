@@ -8,10 +8,12 @@ namespace Application.Features.BonusQuestions.Commands.ResolveBonusQuestion
     public sealed class ResolveBonusQuestionCommandHandler : IRequestHandler<ResolveBonusQuestionCommand, Result<int>>
     {
         private readonly ITipprDbContext _db;
+        private readonly IStandingsService _standingsService;
 
-        public ResolveBonusQuestionCommandHandler(ITipprDbContext db)
+        public ResolveBonusQuestionCommandHandler(ITipprDbContext db, IStandingsService standingsService)
         {
             _db = db;
+            _standingsService = standingsService;
         }
 
         public async Task<Result<int>> Handle(ResolveBonusQuestionCommand request, CancellationToken ct)
@@ -39,54 +41,32 @@ namespace Application.Features.BonusQuestions.Commands.ResolveBonusQuestion
                     return Result<int>.NotFound("Team not found", "team.not_found");
             }
 
-            // Update the bonus question with the correct answer
-            bonusQuestion.AnswerTeamId = request.AnswerTeamId;
-            bonusQuestion.AnswerText = request.AnswerText;
-            bonusQuestion.IsResolved = true;
+            await using var tx = await _db.BeginTransactionAsync(ct);
 
-            // Get all predictions for this bonus question
-            var predictions = await _db.BonusPredictions
-                .Where(bp => bp.BonusQuestionId == request.BonusQuestionId)
-                .ToListAsync(ct);
-
-            var awardedCount = 0;
-
-            foreach (var prediction in predictions)
+            try
             {
-                var isCorrect = IsCorrectPrediction(prediction.AnswerTeamId, prediction.AnswerText, request.AnswerTeamId, request.AnswerText);
+                // Update the bonus question with the correct answer
+                bonusQuestion.AnswerTeamId = request.AnswerTeamId;
+                bonusQuestion.AnswerText = request.AnswerText;
+                bonusQuestion.IsResolved = true;
+                bonusQuestion.UpdatedAt = DateTime.UtcNow;
 
-                if (isCorrect)
-                {
-                    prediction.PointsEarned = bonusQuestion.Points;
-                    awardedCount++;
-                }
-                else
-                {
-                    prediction.PointsEarned = 0;
-                }
+                await _db.SaveChangesAsync(ct);
+
+                // Score all bonus predictions and update standings
+                var awardedCount = await _standingsService.ScoreBonusPredictionsAsync(
+                    request.BonusQuestionId,
+                    ct);
+
+                await tx.CommitAsync(ct);
+
+                return Result<int>.Success(awardedCount);
             }
-
-            await _db.SaveChangesAsync(ct);
-
-            return Result<int>.Success(awardedCount);
-        }
-
-        private static bool IsCorrectPrediction(Guid? predictedTeamId, string? predictedText, Guid? correctTeamId, string? correctText)
-        {
-            // If the correct answer is a team, match by team ID
-            if (correctTeamId.HasValue)
+            catch (Exception)
             {
-                return predictedTeamId.HasValue && predictedTeamId.Value == correctTeamId.Value;
+                await tx.RollbackAsync(ct);
+                throw;
             }
-
-            // If the correct answer is text, match by text (case-insensitive)
-            if (!string.IsNullOrWhiteSpace(correctText))
-            {
-                return !string.IsNullOrWhiteSpace(predictedText) &&
-                       string.Equals(predictedText.Trim(), correctText.Trim(), StringComparison.OrdinalIgnoreCase);
-            }
-
-            return false;
         }
     }
 }

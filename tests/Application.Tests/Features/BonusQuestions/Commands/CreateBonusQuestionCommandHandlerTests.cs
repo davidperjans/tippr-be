@@ -27,7 +27,6 @@ public sealed class CreateBonusQuestionCommandHandlerTests
                 Type = TournamentType.EuroCup,
                 StartDate = DateTime.UtcNow.AddMonths(1),
                 EndDate = DateTime.UtcNow.AddMonths(2),
-                Country = "Germany",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             }
@@ -120,7 +119,6 @@ public sealed class CreateBonusQuestionCommandHandlerTests
                 Type = TournamentType.EuroCup,
                 StartDate = DateTime.UtcNow.AddMonths(1),
                 EndDate = DateTime.UtcNow.AddMonths(2),
-                Country = "Germany",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             }

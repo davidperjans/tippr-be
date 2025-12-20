@@ -7,7 +7,6 @@ namespace Application.Features.Leagues.Commands.CreateLeague
         string Name,
         string? Description,
         Guid TournamentId,
-        Guid OwnerId,
         bool IsPublic,
         int? MaxMembers,
         string? ImageUrl

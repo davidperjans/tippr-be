@@ -172,6 +172,41 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("ChatMessages", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Country", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FlagUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("IsoCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsoCode")
+                        .IsUnique();
+
+                    b.ToTable("Countries", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.League", b =>
                 {
                     b.Property<Guid>("Id")
@@ -206,6 +241,11 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsSystemCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<int?>("MaxMembers")
                         .HasColumnType("integer");
 
@@ -214,7 +254,7 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("OwnerId")
+                    b.Property<Guid?>("OwnerId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("TournamentId")
@@ -402,7 +442,9 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Rank")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
 
                     b.Property<int>("TotalPoints")
                         .ValueGeneratedOnAdd()
@@ -457,6 +499,9 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<DateTime>("MatchDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ResultVersion")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Stage")
                         .IsRequired()
@@ -565,13 +610,22 @@ namespace Infrastructure.Data.Migrations
                     b.Property<int>("HomeScore")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("IsScored")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("LeagueId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("MatchId")
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("PointsEarned")
+                    b.Property<int>("PointsEarned")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ScoredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("ScoredResultVersion")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -615,6 +669,17 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<decimal?>("FifaPoints")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<int?>("FifaRank")
+                        .HasMaxLength(5)
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("FifaRankingUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("FlagUrl")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -648,11 +713,6 @@ namespace Infrastructure.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -692,6 +752,21 @@ namespace Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tournaments", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.TournamentCountry", b =>
+                {
+                    b.Property<Guid>("TournamentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CountryId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TournamentId", "CountryId");
+
+                    b.HasIndex("CountryId");
+
+                    b.ToTable("TournamentCountries", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -834,8 +909,7 @@ namespace Infrastructure.Data.Migrations
                     b.HasOne("Domain.Entities.User", "Owner")
                         .WithMany("OwnedLeagues")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Entities.Tournament", "Tournament")
                         .WithMany("Leagues")
@@ -973,6 +1047,25 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Tournament");
                 });
 
+            modelBuilder.Entity("Domain.Entities.TournamentCountry", b =>
+                {
+                    b.HasOne("Domain.Entities.Country", "Country")
+                        .WithMany("Tournaments")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Tournament", "Tournament")
+                        .WithMany("Countries")
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+
+                    b.Navigation("Tournament");
+                });
+
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.HasOne("Domain.Entities.Team", "FavoriteTeam")
@@ -986,6 +1079,11 @@ namespace Infrastructure.Data.Migrations
             modelBuilder.Entity("Domain.Entities.BonusQuestion", b =>
                 {
                     b.Navigation("Predictions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Country", b =>
+                {
+                    b.Navigation("Tournaments");
                 });
 
             modelBuilder.Entity("Domain.Entities.League", b =>
@@ -1025,6 +1123,8 @@ namespace Infrastructure.Data.Migrations
             modelBuilder.Entity("Domain.Entities.Tournament", b =>
                 {
                     b.Navigation("BonusQuestions");
+
+                    b.Navigation("Countries");
 
                     b.Navigation("Leagues");
 

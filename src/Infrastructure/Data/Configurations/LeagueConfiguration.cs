@@ -23,7 +23,7 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired();
 
             builder.Property(l => l.OwnerId)
-                .IsRequired();
+                .IsRequired(false);
 
             builder.Property(l => l.InviteCode)
                 .IsRequired()
@@ -34,6 +34,10 @@ namespace Infrastructure.Data.Configurations
                 .HasDefaultValue(false);
 
             builder.Property(l => l.IsGlobal)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            builder.Property(l => l.IsSystemCreated)
                 .IsRequired()
                 .HasDefaultValue(false);
 
@@ -64,6 +68,7 @@ namespace Infrastructure.Data.Configurations
             builder.HasOne(l => l.Owner)
                 .WithMany(u => u.OwnedLeagues)
                 .HasForeignKey(l => l.OwnerId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(l => l.Settings)

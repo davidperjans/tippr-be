@@ -1,6 +1,7 @@
 using Application.Common.Interfaces;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructure.Data
 {
@@ -14,6 +15,8 @@ namespace Infrastructure.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Tournament> Tournaments { get; set; }
         public DbSet<Team> Teams { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<TournamentCountry> TournamentCountries { get; set; }
         public DbSet<Match> Matches { get; set; }
         public DbSet<League> Leagues { get; set; }
         public DbSet<LeagueSettings> LeagueSettings { get; set; }
@@ -54,5 +57,8 @@ namespace Infrastructure.Data
 
             return base.SaveChangesAsync(cancellationToken);
         }
+
+        public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
+            => Database.BeginTransactionAsync(cancellationToken);
     }
 }

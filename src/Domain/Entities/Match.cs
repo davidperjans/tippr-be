@@ -16,6 +16,8 @@ namespace Domain.Entities
         public string? Venue { get; set; }
         public int? ApiFootballId { get; set; }
 
+        public int ResultVersion { get; set; }
+
         // Navigation properties
         public Tournament Tournament { get; set; } = null!;
         public Team HomeTeam { get; set; } = null!;

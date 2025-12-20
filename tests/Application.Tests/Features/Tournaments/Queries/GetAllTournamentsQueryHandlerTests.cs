@@ -36,7 +36,6 @@ public sealed class GetAllTournamentsQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2026, 6, 11),
                 EndDate = new DateTime(2026, 7, 19),
-                Country = "USA",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             },
@@ -48,7 +47,6 @@ public sealed class GetAllTournamentsQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2022, 11, 20),
                 EndDate = new DateTime(2022, 12, 18),
-                Country = "Qatar",
                 IsActive = false,
                 CreatedAt = DateTime.UtcNow
             }
@@ -88,7 +86,6 @@ public sealed class GetAllTournamentsQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2026, 6, 11),
                 EndDate = new DateTime(2026, 7, 19),
-                Country = "USA",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             },
@@ -100,7 +97,6 @@ public sealed class GetAllTournamentsQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2022, 11, 20),
                 EndDate = new DateTime(2022, 12, 18),
-                Country = "Qatar",
                 IsActive = false,
                 CreatedAt = DateTime.UtcNow
             }
@@ -163,7 +159,6 @@ public sealed class GetAllTournamentsQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2018, 6, 14),
                 EndDate = new DateTime(2018, 7, 15),
-                Country = "Russia",
                 IsActive = false,
                 CreatedAt = DateTime.UtcNow
             },
@@ -175,7 +170,6 @@ public sealed class GetAllTournamentsQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2026, 6, 11),
                 EndDate = new DateTime(2026, 7, 19),
-                Country = "USA",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             },
@@ -187,7 +181,6 @@ public sealed class GetAllTournamentsQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2022, 11, 20),
                 EndDate = new DateTime(2022, 12, 18),
-                Country = "Qatar",
                 IsActive = false,
                 CreatedAt = DateTime.UtcNow
             }
