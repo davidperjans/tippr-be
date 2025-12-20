@@ -9,6 +9,9 @@ namespace Domain.Entities
         public string Code { get; set; } = string.Empty;
         public string? FlagUrl { get; set; }
         public string? GroupName { get; set; }
+        public int? FifaRank { get; set; }
+        public decimal? FifaPoints { get; set; }
+        public DateTime? FifaRankingUpdatedAt { get; set; }
         public int? ApiFootballId { get; set; }
 
         // Navigation properties

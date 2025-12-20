@@ -43,7 +43,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id:guid}/result")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<Result<bool>>> UpdateResult(Guid id, [FromBody] UpdateMatchResultRequest body, CancellationToken ct)
         {
             var command = new UpdateMatchResultCommand(id, body.HomeScore, body.AwayScore, body.Status);

@@ -16,10 +16,6 @@ namespace Application.Features.Leagues.Commands.CreateLeague
                 .NotEmpty()
                 .WithMessage("Tournament is required");
 
-            RuleFor(x => x.OwnerId)
-                .NotEmpty()
-                .WithMessage("Owner is required");
-
             RuleFor(x => x.Description)
                 .MaximumLength(500)
                 .WithMessage("Description cannot exceed 500 characters")

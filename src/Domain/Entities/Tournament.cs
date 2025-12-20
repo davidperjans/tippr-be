@@ -10,7 +10,6 @@ namespace Domain.Entities
         public TournamentType Type { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string Country { get; set; } = string.Empty;
         public string? LogoUrl { get; set; }
         public bool IsActive { get; set; } = true;
 
@@ -19,5 +18,6 @@ namespace Domain.Entities
         public ICollection<Match> Matches { get; set; } = new List<Match>();
         public ICollection<BonusQuestion> BonusQuestions { get; set; } = new List<BonusQuestion>();
         public ICollection<League> Leagues { get; set; } = new List<League>();
+        public ICollection<TournamentCountry> Countries { get; set; } = new List<TournamentCountry>();
     }
 }

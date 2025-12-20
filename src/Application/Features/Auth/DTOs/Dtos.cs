@@ -10,6 +10,7 @@
         Guid UserId, 
         string Email, 
         string? DisplayName,
+        string? AvatarUrl,
         DateTime LastLoginAt
     );
 }

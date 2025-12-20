@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Application.Common.Interfaces
 {
@@ -16,6 +17,8 @@ namespace Application.Common.Interfaces
         DbSet<Prediction> Predictions { get; }
         DbSet<BonusQuestion> BonusQuestions { get; }
         DbSet<BonusPrediction> BonusPredictions { get; }
+        DbSet<ChatMessage> ChatMessages { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken);
     }
 }

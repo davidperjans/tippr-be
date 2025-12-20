@@ -29,6 +29,16 @@ namespace Infrastructure.Data.Configurations
             builder.Property(t => t.GroupName)
                 .HasMaxLength(5);
 
+            builder.Property(t => t.FifaRank)
+                .HasMaxLength(5);
+
+            builder.Property(t => t.FifaPoints)
+                .IsRequired(false)
+                .HasPrecision(10, 2);
+
+            builder.Property(t => t.FifaRankingUpdatedAt)
+                .IsRequired(false);
+
             builder.Property(t => t.CreatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("NOW()");

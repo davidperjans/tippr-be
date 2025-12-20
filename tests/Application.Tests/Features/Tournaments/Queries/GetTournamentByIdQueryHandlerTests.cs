@@ -38,7 +38,6 @@ public sealed class GetTournamentByIdQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2026, 6, 11),
                 EndDate = new DateTime(2026, 7, 19),
-                Country = "USA/Canada/Mexico",
                 LogoUrl = "https://example.com/logo.png",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
@@ -63,7 +62,6 @@ public sealed class GetTournamentByIdQueryHandlerTests
         result.Data.Name.Should().Be("VM 2026");
         result.Data.Year.Should().Be(2026);
         result.Data.Type.Should().Be(TournamentType.WorldCup);
-        result.Data.Country.Should().Be("USA/Canada/Mexico");
         result.Data.LogoUrl.Should().Be("https://example.com/logo.png");
         result.Data.IsActive.Should().BeTrue();
     }
@@ -85,7 +83,6 @@ public sealed class GetTournamentByIdQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2026, 6, 11),
                 EndDate = new DateTime(2026, 7, 19),
-                Country = "USA",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             }
@@ -161,7 +158,6 @@ public sealed class GetTournamentByIdQueryHandlerTests
                 Type = TournamentType.WorldCup,
                 StartDate = startDate,
                 EndDate = endDate,
-                Country = "USA/Canada/Mexico",
                 LogoUrl = "https://fifa.com/wc2026/logo.png",
                 IsActive = true,
                 CreatedAt = createdAt
@@ -190,7 +186,6 @@ public sealed class GetTournamentByIdQueryHandlerTests
         dto.Type.Should().Be(TournamentType.WorldCup);
         dto.StartDate.Should().Be(startDate);
         dto.EndDate.Should().Be(endDate);
-        dto.Country.Should().Be("USA/Canada/Mexico");
         dto.LogoUrl.Should().Be("https://fifa.com/wc2026/logo.png");
         dto.IsActive.Should().BeTrue();
     }

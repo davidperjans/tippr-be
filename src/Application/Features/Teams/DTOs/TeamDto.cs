@@ -10,6 +10,7 @@
 
         public string? FlagUrl { get; init; }
         public string? GroupName { get; init; }
+        public int? FifaRank { get; init; }
         public int? ApiFootballId { get; init; }
     }
 }

@@ -5,7 +5,6 @@ namespace Application.Features.Leagues.Commands.JoinLeague
 {
     public sealed record JoinLeagueCommand(
         Guid LeagueId,
-        Guid UserId,
-        string InviteCode
+        string? InviteCode
     ) : IRequest<Result<bool>>;
 }

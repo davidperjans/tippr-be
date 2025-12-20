@@ -84,7 +84,6 @@ namespace Application.Tests.Features.Tournaments.Commands
                 Type = TournamentType.WorldCup,
                 StartDate = new DateTime(2026, 6, 11),
                 EndDate = new DateTime(2026, 7, 19),
-                Country = "USA",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             }

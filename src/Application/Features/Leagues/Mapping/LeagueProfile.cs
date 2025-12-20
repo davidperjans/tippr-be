@@ -17,6 +17,8 @@ namespace Application.Features.Leagues.Mapping
                 .ForMember(d => d.UpdatedAt, o => o.Ignore())
                 .ForMember(d => d.InviteCode, o => o.Ignore())
                 .ForMember(d => d.IsGlobal, o => o.Ignore())
+                .ForMember(d => d.OwnerId, o => o.Ignore())
+                .ForMember(d => d.IsSystemCreated, o => o.Ignore())
 
                 // navigation properties
                 .ForMember(d => d.Tournament, o => o.Ignore())

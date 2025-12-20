@@ -7,11 +7,10 @@ namespace Application.Features.Leagues.Commands.JoinLeague
         public JoinLeagueCommandValidator()
         {
             RuleFor(x => x.LeagueId).NotEmpty();
-            RuleFor(x => x.UserId).NotEmpty();
 
             RuleFor(x => x.InviteCode)
-                .NotEmpty()
-                .MaximumLength(20);
+                .MaximumLength(20)
+                .When(x => x.InviteCode != null);
         }
     }
 }

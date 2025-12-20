@@ -1,8 +1,11 @@
 using API.Auth;
+using API.Hubs;
 using API.Middleware;
 using Application;
 using Infrastructure;
 using Infrastructure.Auth;
+using Infrastructure.Data;
+using Infrastructure.Data.Seeding;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -31,6 +34,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMemoryCache();
+builder.Services.AddSignalR();
 
 // Layers
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -122,6 +126,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 

@@ -29,7 +29,6 @@ public sealed class SubmitBonusPredictionCommandHandlerTests
             Type = TournamentType.EuroCup,
             StartDate = DateTime.UtcNow.AddMonths(1), // not started yet
             EndDate = DateTime.UtcNow.AddMonths(2),
-            Country = "Germany",
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };

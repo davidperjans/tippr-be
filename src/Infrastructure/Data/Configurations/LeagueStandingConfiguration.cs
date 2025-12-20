@@ -31,7 +31,8 @@ namespace Infrastructure.Data.Configurations
                 .HasDefaultValue(0);
 
             builder.Property(ls => ls.Rank)
-                .IsRequired();
+                .IsRequired()
+                .HasDefaultValue(1);
 
             builder.Property(ls => ls.CreatedAt)
                 .IsRequired()

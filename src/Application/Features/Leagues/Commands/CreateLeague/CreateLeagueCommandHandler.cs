@@ -14,14 +14,20 @@ namespace Application.Features.Leagues.Commands.CreateLeague
     {
         private readonly ITipprDbContext _db;
         private readonly IMapper _mapper;
-        public CreateLeagueCommandHandler(ITipprDbContext db, IMapper mapper)
+        private readonly ICurrentUser _currentUser;
+        private readonly IStandingsService _standingsService;
+        public CreateLeagueCommandHandler(ITipprDbContext db, IMapper mapper, ICurrentUser currentUser, IStandingsService standingsService)
         {
             _db = db;
             _mapper = mapper;
+            _currentUser = currentUser;
+            _standingsService = standingsService;
         }
         public async Task<Result<Guid>> Handle(CreateLeagueCommand request, CancellationToken cancellationToken)
         {
-            var exists = await _db.Leagues.AnyAsync(l => l.Name == request.Name && l.OwnerId == request.OwnerId, cancellationToken);
+            var ownerId = _currentUser.UserId;
+
+            var exists = await _db.Leagues.AnyAsync(l => l.Name == request.Name && l.OwnerId == ownerId, cancellationToken);
 
             if (exists)
                 return Result<Guid>.Conflict("league already exists", "league.already_exists");
@@ -29,10 +35,14 @@ namespace Application.Features.Leagues.Commands.CreateLeague
             var entity = _mapper.Map<League>(request);
 
             entity.Id = Guid.NewGuid();
+            entity.OwnerId = ownerId;
+            entity.IsGlobal = false;
+            entity.IsSystemCreated = false;
             entity.CreatedAt = DateTime.UtcNow;
+            entity.UpdatedAt = DateTime.UtcNow;
 
             entity.InviteCode = await GenerateUniqueInviteCodeAsync(cancellationToken);
-            entity.IsGlobal = false;
+            
 
             entity.Settings = new LeagueSettings
             {
@@ -60,7 +70,7 @@ namespace Application.Features.Leagues.Commands.CreateLeague
             {
                 Id = Guid.NewGuid(),
                 LeagueId = entity.Id,
-                UserId = request.OwnerId,
+                UserId = ownerId,
                 JoinedAt = DateTime.UtcNow,
                 IsAdmin = true,
                 IsMuted = false
@@ -70,7 +80,7 @@ namespace Application.Features.Leagues.Commands.CreateLeague
             {
                 Id = Guid.NewGuid(),
                 LeagueId = entity.Id,
-                UserId = request.OwnerId,
+                UserId = ownerId,
                 TotalPoints = 0,
                 MatchPoints = 0,
                 BonusPoints = 0,
@@ -81,6 +91,7 @@ namespace Application.Features.Leagues.Commands.CreateLeague
 
             _db.Leagues.Add(entity);
             await _db.SaveChangesAsync(cancellationToken);
+            await _standingsService.RecalculateRanksForLeagueAsync(entity.Id, cancellationToken);
 
             return Result<Guid>.Success(entity.Id);
         }

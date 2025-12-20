@@ -29,9 +29,6 @@ namespace Infrastructure.Data.Configurations
             builder.Property(t => t.EndDate)
                 .IsRequired();
 
-            builder.Property(t => t.Country)
-                .HasMaxLength(100);
-
             builder.Property(t => t.LogoUrl)
                 .HasMaxLength(500);
 

@@ -60,7 +60,8 @@ public sealed class UpdatePredictionCommandHandlerTests
             AwayScore = 0,
             CreatedAt = DateTime.UtcNow.AddDays(-1),
             UpdatedAt = DateTime.UtcNow.AddDays(-1),
-            PointsEarned = null
+            PointsEarned = 0,
+            IsScored = false
         };
 
         var leagues = new List<League> { league };
@@ -313,7 +314,8 @@ public sealed class UpdatePredictionCommandHandlerTests
             AwayScore = 0,
             CreatedAt = DateTime.UtcNow.AddDays(-1),
             UpdatedAt = DateTime.UtcNow.AddDays(-1),
-            PointsEarned = null
+            PointsEarned = 0,
+            IsScored = false
         };
 
         var pointsMock = new Mock<IPointsCalculator>();
