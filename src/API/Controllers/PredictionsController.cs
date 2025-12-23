@@ -1,5 +1,6 @@
 ﻿using API.Contracts.Predictions;
 using Application.Common;
+using Application.Features.Predictions.Commands.BulkSubmitPredictions;
 using Application.Features.Predictions.Commands.SubmitPrediction;
 using Application.Features.Predictions.Commands.UpdatePrediction;
 using Application.Features.Predictions.DTOs;
@@ -32,6 +33,18 @@ namespace API.Controllers
                 request.AwayScore
             );
 
+            var result = await _mediator.Send(command, ct);
+            return FromResult(result);
+        }
+
+        [HttpPost("bulk")]
+        public async Task<ActionResult<Result<BulkSubmitPredictionsResult>>> BulkSubmit([FromBody] BulkSubmitPredictionsRequest request, CancellationToken ct)
+        {
+            var predictions = request.Predictions
+                .Select(p => new PredictionItem(p.MatchId, p.HomeScore, p.AwayScore))
+                .ToList();
+
+            var command = new BulkSubmitPredictionsCommand(request.LeagueId, predictions);
             var result = await _mediator.Send(command, ct);
             return FromResult(result);
         }
