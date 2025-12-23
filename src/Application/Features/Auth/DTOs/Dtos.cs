@@ -1,4 +1,6 @@
-﻿namespace Application.Features.Auth.DTOs
+﻿using Domain.Enums;
+
+namespace Application.Features.Auth.DTOs
 {
     public record SyncUserResponse(
         Guid UserId, 
@@ -11,6 +13,7 @@
         string Email, 
         string? DisplayName,
         string? AvatarUrl,
-        DateTime LastLoginAt
+        DateTime LastLoginAt,
+        UserRole Role
     );
 }

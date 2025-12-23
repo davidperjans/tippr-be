@@ -803,6 +803,9 @@ namespace Infrastructure.Data.Migrations
                     b.Property<Guid?>("FavoriteTeamId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsBanned")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
 

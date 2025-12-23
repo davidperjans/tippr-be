@@ -13,6 +13,7 @@ namespace Domain.Entities
         public string? AvatarUrl { get; set; }
         public string? Bio { get; set; }
         public UserRole Role { get; set; }
+        public bool IsBanned { get; set; } = false;
         public Guid? FavoriteTeamId { get; set; }
         public DateTime? LastLoginAt { get; set; }
 
