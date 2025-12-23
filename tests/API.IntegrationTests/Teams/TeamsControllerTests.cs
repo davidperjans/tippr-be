@@ -148,8 +148,8 @@ public sealed class TeamsControllerTests : IClassFixture<TipprWebApplicationFact
                 TournamentId = tournamentId,
                 Name = t.Name,
                 Code = t.Code,
-                FlagUrl = t.FlagUrl,
-                GroupName = t.GroupName,
+                LogoUrl = t.FlagUrl,
+                // GroupId is now managed via Group entity and standings sync
                 ApiFootballId = t.ApiFootballId
             });
         }

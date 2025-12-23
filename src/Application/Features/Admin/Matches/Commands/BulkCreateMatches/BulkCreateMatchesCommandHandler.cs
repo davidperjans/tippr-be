@@ -72,7 +72,7 @@ namespace Application.Features.Admin.Matches.Commands.BulkCreateMatches
                     MatchDate = matchItem.MatchDate,
                     Stage = matchItem.Stage,
                     Status = MatchStatus.Scheduled,
-                    Venue = matchItem.Venue,
+                    VenueName = matchItem.Venue,
                     ApiFootballId = matchItem.ApiFootballId,
                     ResultVersion = 0,
                     CreatedAt = DateTime.UtcNow,

@@ -32,8 +32,21 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasConversion<string>();
 
-            builder.Property(m => m.Venue)
+            builder.Property(m => m.VenueId)
+                .IsRequired(false);
+
+            builder.Property(m => m.VenueName)
                 .HasMaxLength(200);
+
+            builder.Property(m => m.VenueCity)
+                .HasMaxLength(100);
+
+            builder.Property(m => m.ApiFootballId)
+                .IsRequired(false);
+
+            builder.Property(m => m.ResultVersion)
+                .IsRequired()
+                .HasDefaultValue(0);
 
             builder.Property(m => m.CreatedAt)
                 .IsRequired()
@@ -65,6 +78,11 @@ namespace Infrastructure.Data.Configurations
                 .WithMany(t => t.AwayMatches)
                 .HasForeignKey(m => m.AwayTeamId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(m => m.Venue)
+                .WithMany(v => v.Matches)
+                .HasForeignKey(m => m.VenueId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasMany(m => m.Predictions)
                 .WithOne(p => p.Match)

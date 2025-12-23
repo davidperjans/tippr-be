@@ -28,6 +28,9 @@ namespace Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AnswerPlayerId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("AnswerTeamId")
                         .HasColumnType("uuid");
 
@@ -57,6 +60,8 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AnswerPlayerId");
+
                     b.HasIndex("AnswerTeamId");
 
                     b.HasIndex("BonusQuestionId");
@@ -75,6 +80,9 @@ namespace Infrastructure.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AnswerPlayerId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("AnswerTeamId")
@@ -113,6 +121,8 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnswerPlayerId");
 
                     b.HasIndex("AnswerTeamId");
 
@@ -205,6 +215,175 @@ namespace Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Countries", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.ExternalSyncState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("LastHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("LastSyncedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("NextAllowedSyncAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("ApiFootball");
+
+                    b.Property<string>("Resource")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("TournamentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TournamentId");
+
+                    b.HasIndex("TournamentId", "Provider", "Resource")
+                        .IsUnique();
+
+                    b.ToTable("ExternalSyncStates", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Group", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ApiFootballGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid>("TournamentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TournamentId");
+
+                    b.HasIndex("TournamentId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Groups", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.GroupStanding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<int>("Drawn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Form")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("GoalDifference")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("GoalsAgainst")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("GoalsFor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Lost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("Played")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("Points")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Won")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("TeamId");
+
+                    b.HasIndex("GroupId", "Position");
+
+                    b.HasIndex("GroupId", "TeamId")
+                        .IsUnique();
+
+                    b.ToTable("GroupStandings", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.League", b =>
@@ -501,7 +680,9 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ResultVersion")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Stage")
                         .IsRequired()
@@ -517,7 +698,14 @@ namespace Infrastructure.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Venue")
+                    b.Property<string>("VenueCity")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("VenueId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VenueName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
@@ -533,9 +721,143 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasIndex("TournamentId");
 
+                    b.HasIndex("VenueId");
+
                     b.HasIndex("TournamentId", "Status", "MatchDate");
 
                     b.ToTable("Matches", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchEventsSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("FetchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Json")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FetchedAt");
+
+                    b.HasIndex("MatchId");
+
+                    b.ToTable("MatchEventsSnapshots", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchHeadToHeadSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("FetchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Json")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FetchedAt");
+
+                    b.HasIndex("MatchId");
+
+                    b.ToTable("MatchHeadToHeadSnapshots", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchLineupSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("FetchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Json")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FetchedAt");
+
+                    b.HasIndex("MatchId");
+
+                    b.ToTable("MatchLineupSnapshots", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchStatsSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("FetchedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Json")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FetchedAt");
+
+                    b.HasIndex("MatchId");
+
+                    b.ToTable("MatchStatsSnapshots", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
@@ -593,6 +915,73 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Player", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("Age")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ApiFootballId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("Injured")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Nationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Position")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Weight")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApiFootballId");
+
+                    b.HasIndex("TeamId");
+
+                    b.HasIndex("TeamId", "ApiFootballId")
+                        .IsUnique();
+
+                    b.ToTable("Players", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Prediction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -611,7 +1000,9 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsScored")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<Guid>("LeagueId")
                         .HasColumnType("uuid");
@@ -620,7 +1011,9 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<int>("PointsEarned")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("ScoredAt")
                         .HasColumnType("timestamp with time zone");
@@ -660,7 +1053,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
 
@@ -669,24 +1061,29 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<decimal?>("FifaPoints")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
 
                     b.Property<int?>("FifaRank")
-                        .HasMaxLength(5)
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("FifaRankingUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("FlagUrl")
+                    b.Property<int?>("FoundedYear")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
-
-                    b.Property<string>("GroupName")
-                        .HasMaxLength(5)
-                        .HasColumnType("character varying(5)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -699,11 +1096,18 @@ namespace Infrastructure.Data.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("VenueId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Code");
 
+                    b.HasIndex("GroupId");
+
                     b.HasIndex("TournamentId");
+
+                    b.HasIndex("VenueId");
 
                     b.ToTable("Teams", (string)null);
                 });
@@ -713,6 +1117,17 @@ namespace Infrastructure.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("ApiFootballEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<int?>("ApiFootballLeagueId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ApiFootballSeason")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -804,13 +1219,16 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsBanned")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -836,8 +1254,63 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Venue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int?>("ApiFootballId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Surface")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApiFootballId");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Venues", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.BonusPrediction", b =>
                 {
+                    b.HasOne("Domain.Entities.Player", "AnswerPlayer")
+                        .WithMany("BonusPredictions")
+                        .HasForeignKey("AnswerPlayerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Domain.Entities.Team", "AnswerTeam")
                         .WithMany("BonusPredictions")
                         .HasForeignKey("AnswerTeamId")
@@ -861,6 +1334,8 @@ namespace Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AnswerPlayer");
+
                     b.Navigation("AnswerTeam");
 
                     b.Navigation("BonusQuestion");
@@ -872,6 +1347,11 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.BonusQuestion", b =>
                 {
+                    b.HasOne("Domain.Entities.Player", "AnswerPlayer")
+                        .WithMany("BonusQuestionsAnswered")
+                        .HasForeignKey("AnswerPlayerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Domain.Entities.Team", "AnswerTeam")
                         .WithMany("BonusQuestionsAnswered")
                         .HasForeignKey("AnswerTeamId")
@@ -882,6 +1362,8 @@ namespace Infrastructure.Data.Migrations
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AnswerPlayer");
 
                     b.Navigation("AnswerTeam");
 
@@ -905,6 +1387,47 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("League");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ExternalSyncState", b =>
+                {
+                    b.HasOne("Domain.Entities.Tournament", "Tournament")
+                        .WithMany()
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tournament");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Group", b =>
+                {
+                    b.HasOne("Domain.Entities.Tournament", "Tournament")
+                        .WithMany("Groups")
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tournament");
+                });
+
+            modelBuilder.Entity("Domain.Entities.GroupStanding", b =>
+                {
+                    b.HasOne("Domain.Entities.Group", "Group")
+                        .WithMany("Standings")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("Domain.Entities.League", b =>
@@ -994,11 +1517,62 @@ namespace Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.Venue", "Venue")
+                        .WithMany("Matches")
+                        .HasForeignKey("VenueId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("AwayTeam");
 
                     b.Navigation("HomeTeam");
 
                     b.Navigation("Tournament");
+
+                    b.Navigation("Venue");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchEventsSnapshot", b =>
+                {
+                    b.HasOne("Domain.Entities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchHeadToHeadSnapshot", b =>
+                {
+                    b.HasOne("Domain.Entities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchLineupSnapshot", b =>
+                {
+                    b.HasOne("Domain.Entities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Match");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MatchStatsSnapshot", b =>
+                {
+                    b.HasOne("Domain.Entities.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Match");
                 });
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
@@ -1010,6 +1584,17 @@ namespace Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Player", b =>
+                {
+                    b.HasOne("Domain.Entities.Team", "Team")
+                        .WithMany("Players")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("Domain.Entities.Prediction", b =>
@@ -1041,13 +1626,27 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.Team", b =>
                 {
+                    b.HasOne("Domain.Entities.Group", "Group")
+                        .WithMany("Teams")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Domain.Entities.Tournament", "Tournament")
                         .WithMany("Teams")
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.Venue", "Venue")
+                        .WithMany("Teams")
+                        .HasForeignKey("VenueId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Group");
+
                     b.Navigation("Tournament");
+
+                    b.Navigation("Venue");
                 });
 
             modelBuilder.Entity("Domain.Entities.TournamentCountry", b =>
@@ -1089,6 +1688,13 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Tournaments");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Group", b =>
+                {
+                    b.Navigation("Standings");
+
+                    b.Navigation("Teams");
+                });
+
             modelBuilder.Entity("Domain.Entities.League", b =>
                 {
                     b.Navigation("BonusPredictions");
@@ -1110,6 +1716,13 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Predictions");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Player", b =>
+                {
+                    b.Navigation("BonusPredictions");
+
+                    b.Navigation("BonusQuestionsAnswered");
+                });
+
             modelBuilder.Entity("Domain.Entities.Team", b =>
                 {
                     b.Navigation("AwayMatches");
@@ -1121,6 +1734,8 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("FavoriteByUsers");
 
                     b.Navigation("HomeMatches");
+
+                    b.Navigation("Players");
                 });
 
             modelBuilder.Entity("Domain.Entities.Tournament", b =>
@@ -1128,6 +1743,8 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("BonusQuestions");
 
                     b.Navigation("Countries");
+
+                    b.Navigation("Groups");
 
                     b.Navigation("Leagues");
 
@@ -1151,6 +1768,13 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("OwnedLeagues");
 
                     b.Navigation("Predictions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Venue", b =>
+                {
+                    b.Navigation("Matches");
+
+                    b.Navigation("Teams");
                 });
 #pragma warning restore 612, 618
         }

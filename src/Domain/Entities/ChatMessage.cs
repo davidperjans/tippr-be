@@ -6,9 +6,12 @@ namespace Domain.Entities
     {
         public Guid LeagueId { get; set; }
         public Guid UserId { get; set; }
+
         public string Message { get; set; } = string.Empty;
+        
         public bool IsEdited { get; set; } = false;
         public DateTime? EditedAt { get; set; }
+        
         public bool IsDeleted { get; set; } = false;
 
         // Navigation properties

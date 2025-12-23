@@ -10,11 +10,11 @@ namespace Application.Features.Admin.DTOs
         public Guid HomeTeamId { get; init; }
         public string HomeTeamName { get; init; } = string.Empty;
         public string HomeTeamCode { get; init; } = string.Empty;
-        public string? HomeTeamFlagUrl { get; init; }
+        public string? HomeTeamLogoUrl { get; init; }
         public Guid AwayTeamId { get; init; }
         public string AwayTeamName { get; init; } = string.Empty;
         public string AwayTeamCode { get; init; } = string.Empty;
-        public string? AwayTeamFlagUrl { get; init; }
+        public string? AwayTeamLogoUrl { get; init; }
         public DateTime MatchDate { get; init; }
         public MatchStage Stage { get; init; }
         public int? HomeScore { get; init; }

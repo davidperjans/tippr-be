@@ -36,6 +36,16 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasDefaultValue(true);
 
+            builder.Property(t => t.ApiFootballLeagueId)
+                .IsRequired(false);
+
+            builder.Property(t => t.ApiFootballSeason)
+                .IsRequired(false);
+
+            builder.Property(t => t.ApiFootballEnabled)
+                .IsRequired()
+                .HasDefaultValue(false);
+
             builder.Property(t => t.CreatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("NOW()");

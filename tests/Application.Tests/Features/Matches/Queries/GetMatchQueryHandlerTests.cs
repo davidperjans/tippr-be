@@ -47,7 +47,7 @@ namespace Application.Tests.Features.Matches.Queries
                     Status = MatchStatus.Scheduled,
                     HomeScore = null,
                     AwayScore = null,
-                    Venue = "Arena",
+                    VenueName = "Arena",
                     UpdatedAt = DateTime.UtcNow
                 }
             };

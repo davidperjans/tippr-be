@@ -15,6 +15,8 @@ namespace Infrastructure.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Tournament> Tournaments { get; set; }
         public DbSet<Team> Teams { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<GroupStanding> GroupStandings { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<TournamentCountry> TournamentCountries { get; set; }
         public DbSet<Match> Matches { get; set; }
@@ -27,6 +29,13 @@ namespace Infrastructure.Data
         public DbSet<LeagueStanding> LeagueStandings { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Venue> Venues { get; set; }
+        public DbSet<Player> Players { get; set; }
+        public DbSet<ExternalSyncState> ExternalSyncStates { get; set; }
+        public DbSet<MatchLineupSnapshot> MatchLineupSnapshots { get; set; }
+        public DbSet<MatchEventsSnapshot> MatchEventsSnapshots { get; set; }
+        public DbSet<MatchStatsSnapshot> MatchStatsSnapshots { get; set; }
+        public DbSet<MatchHeadToHeadSnapshot> MatchHeadToHeadSnapshots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

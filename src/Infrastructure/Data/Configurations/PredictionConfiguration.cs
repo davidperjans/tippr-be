@@ -27,6 +27,20 @@ namespace Infrastructure.Data.Configurations
             builder.Property(p => p.AwayScore)
                 .IsRequired();
 
+            builder.Property(p => p.PointsEarned)
+                .IsRequired()
+                .HasDefaultValue(0);
+
+            builder.Property(p => p.IsScored)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            builder.Property(p => p.ScoredResultVersion)
+                .IsRequired(false);
+
+            builder.Property(p => p.ScoredAt)
+                .IsRequired(false);
+
             builder.Property(p => p.CreatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("NOW()");

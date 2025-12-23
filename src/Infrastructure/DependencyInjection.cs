@@ -1,6 +1,7 @@
 ﻿using Application.Common.Interfaces;
 using Infrastructure.Auth;
 using Infrastructure.Data;
+using Infrastructure.External.ApiFootball;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -78,6 +79,18 @@ namespace Infrastructure
             services.AddScoped<ICurrentUser, CurrentUser>();
             services.AddScoped<IPointsCalculator, PointsCalculator>();
             services.AddScoped<IStandingsService, StandingsService>();
+
+            // API-FOOTBALL Client
+            services.Configure<ApiFootballOptions>(options =>
+            {
+                options.BaseUrl = configuration["ApiFootball:BaseUrl"] ?? "https://v3.football.api-sports.io";
+                options.ApiKey = configuration["ApiFootball:ApiKey"] ?? string.Empty;
+            });
+
+            services.AddHttpClient<IApiFootballClient, ApiFootballClient>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
 
             return services;
         }

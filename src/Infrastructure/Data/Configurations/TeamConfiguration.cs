@@ -19,18 +19,30 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
 
+            builder.Property(t => t.DisplayName)
+                .IsRequired(false)
+                .HasMaxLength(100);
+
             builder.Property(t => t.Code)
-                .IsRequired()
                 .HasMaxLength(3);
 
-            builder.Property(t => t.FlagUrl)
+            builder.Property(t => t.LogoUrl)
                 .HasMaxLength(500);
 
-            builder.Property(t => t.GroupName)
-                .HasMaxLength(5);
+            builder.Property(t => t.GroupId)
+                .IsRequired(false);
+
+            builder.Property(t => t.FoundedYear)
+                .IsRequired(false);
 
             builder.Property(t => t.FifaRank)
-                .HasMaxLength(5);
+                .IsRequired(false);
+
+            builder.Property(t => t.ApiFootballId)
+                .IsRequired(false);
+
+            builder.Property(t => t.VenueId)
+                .IsRequired(false);
 
             builder.Property(t => t.FifaPoints)
                 .IsRequired(false)
@@ -65,6 +77,11 @@ namespace Infrastructure.Data.Configurations
                 .WithOne(m => m.AwayTeam)
                 .HasForeignKey(m => m.AwayTeamId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(t => t.Venue)
+                .WithMany(v => v.Teams)
+                .HasForeignKey(t => t.VenueId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
