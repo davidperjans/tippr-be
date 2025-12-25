@@ -36,7 +36,7 @@ namespace Application.Features.Admin.Matches.Commands.UpdateMatch
                 match.Status = request.Status.Value;
 
             if (request.Venue != null)
-                match.Venue = request.Venue;
+                match.VenueName = request.Venue;
 
             if (request.ApiFootballId.HasValue)
                 match.ApiFootballId = request.ApiFootballId.Value;
@@ -52,18 +52,18 @@ namespace Application.Features.Admin.Matches.Commands.UpdateMatch
                 TournamentName = match.Tournament.Name,
                 HomeTeamId = match.HomeTeamId,
                 HomeTeamName = match.HomeTeam.Name,
-                HomeTeamCode = match.HomeTeam.Code,
-                HomeTeamFlagUrl = match.HomeTeam.FlagUrl,
+                HomeTeamCode = match.HomeTeam.Code ?? string.Empty,
+                HomeTeamLogoUrl = match.HomeTeam.LogoUrl,
                 AwayTeamId = match.AwayTeamId,
                 AwayTeamName = match.AwayTeam.Name,
-                AwayTeamCode = match.AwayTeam.Code,
-                AwayTeamFlagUrl = match.AwayTeam.FlagUrl,
+                AwayTeamCode = match.AwayTeam.Code ?? string.Empty,
+                AwayTeamLogoUrl = match.AwayTeam.LogoUrl,
                 MatchDate = match.MatchDate,
                 Stage = match.Stage,
                 HomeScore = match.HomeScore,
                 AwayScore = match.AwayScore,
                 Status = match.Status,
-                Venue = match.Venue,
+                Venue = match.VenueName,
                 ApiFootballId = match.ApiFootballId,
                 ResultVersion = match.ResultVersion,
                 CreatedAt = match.CreatedAt,

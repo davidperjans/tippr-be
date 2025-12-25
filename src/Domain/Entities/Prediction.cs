@@ -7,10 +7,13 @@ namespace Domain.Entities
         public Guid UserId { get; set; }
         public Guid MatchId { get; set; }
         public Guid LeagueId { get; set; }
+        
         public int HomeScore { get; set; }
         public int AwayScore { get; set; }
+        
         public int PointsEarned { get; set; }
         public bool IsScored { get; set; }
+        
         public int? ScoredResultVersion { get; set; }
         public DateTime? ScoredAt { get; set; }
 

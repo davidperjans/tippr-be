@@ -6,7 +6,9 @@ namespace Domain.Entities
     {
         public Guid LeagueId { get; set; }
         public Guid UserId { get; set; }
+
         public DateTime JoinedAt { get; set; }
+        
         public bool IsAdmin { get; set; } = false;
         public bool IsMuted { get; set; } = false;
 

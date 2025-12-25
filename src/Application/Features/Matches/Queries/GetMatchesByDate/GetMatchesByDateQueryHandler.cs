@@ -33,11 +33,11 @@ namespace Application.Features.Matches.Queries.GetMatchesByDate
 
                     HomeTeamId = m.HomeTeamId,
                     HomeTeamName = m.HomeTeam.Name,
-                    HomeTeamLogoUrl = m.HomeTeam.FlagUrl,
+                    HomeTeamLogoUrl = m.HomeTeam.LogoUrl,
 
                     AwayTeamId = m.AwayTeamId,
                     AwayTeamName = m.AwayTeam.Name,
-                    AwayTeamLogoUrl = m.AwayTeam.FlagUrl,
+                    AwayTeamLogoUrl = m.AwayTeam.LogoUrl,
 
                     MatchDate = m.MatchDate,
                     Stage = m.Stage,

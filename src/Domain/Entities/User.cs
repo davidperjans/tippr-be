@@ -10,10 +10,13 @@ namespace Domain.Entities
         public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+
         public string? AvatarUrl { get; set; }
         public string? Bio { get; set; }
+        
         public UserRole Role { get; set; }
         public bool IsBanned { get; set; } = false;
+        
         public Guid? FavoriteTeamId { get; set; }
         public DateTime? LastLoginAt { get; set; }
 

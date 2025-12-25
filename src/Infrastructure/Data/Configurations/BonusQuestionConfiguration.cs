@@ -54,6 +54,11 @@ namespace Infrastructure.Data.Configurations
                 .HasForeignKey(bq => bq.AnswerTeamId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasOne(bq => bq.AnswerPlayer)
+                .WithMany(p => p.BonusQuestionsAnswered)
+                .HasForeignKey(bq => bq.AnswerPlayerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasMany(bq => bq.Predictions)
                 .WithOne(bp => bp.BonusQuestion)
                 .HasForeignKey(bp => bp.BonusQuestionId)

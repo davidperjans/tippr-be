@@ -31,10 +31,10 @@ namespace Application.Features.Admin.Teams.Commands.UpdateTeam
                 team.Code = request.Code;
 
             if (request.FlagUrl != null)
-                team.FlagUrl = request.FlagUrl;
+                team.LogoUrl = request.FlagUrl;
 
-            if (request.GroupName != null)
-                team.GroupName = request.GroupName;
+            // GroupName is now managed via Group entity and standings sync
+            // Use SyncGroupStandings endpoint to assign teams to groups
 
             if (request.FifaRank.HasValue)
             {
@@ -52,15 +52,25 @@ namespace Application.Features.Admin.Teams.Commands.UpdateTeam
 
             await _db.SaveChangesAsync(cancellationToken);
 
+            // Load group name if team is assigned to a group
+            string? groupName = null;
+            if (team.GroupId.HasValue)
+            {
+                groupName = await _db.Groups
+                    .Where(g => g.Id == team.GroupId.Value)
+                    .Select(g => g.Name)
+                    .FirstOrDefaultAsync(cancellationToken);
+            }
+
             var dto = new AdminTeamDto
             {
                 Id = team.Id,
                 TournamentId = team.TournamentId,
                 TournamentName = team.Tournament.Name,
                 Name = team.Name,
-                Code = team.Code,
-                FlagUrl = team.FlagUrl,
-                GroupName = team.GroupName,
+                Code = team.Code ?? string.Empty,
+                LogoUrl = team.LogoUrl,
+                GroupName = groupName,
                 FifaRank = team.FifaRank,
                 FifaPoints = team.FifaPoints,
                 FifaRankingUpdatedAt = team.FifaRankingUpdatedAt,

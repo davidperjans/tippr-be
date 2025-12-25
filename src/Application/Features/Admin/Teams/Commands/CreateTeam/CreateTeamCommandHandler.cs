@@ -37,8 +37,8 @@ namespace Application.Features.Admin.Teams.Commands.CreateTeam
                 TournamentId = request.TournamentId,
                 Name = request.Name,
                 Code = request.Code,
-                FlagUrl = request.FlagUrl,
-                GroupName = request.GroupName,
+                LogoUrl = request.FlagUrl,
+                // GroupId is managed via SyncGroupStandings endpoint
                 FifaRank = request.FifaRank,
                 FifaPoints = request.FifaPoints,
                 FifaRankingUpdatedAt = request.FifaRank.HasValue ? DateTime.UtcNow : null,

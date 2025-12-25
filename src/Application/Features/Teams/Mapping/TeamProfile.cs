@@ -8,7 +8,8 @@ namespace Application.Features.Teams.Mapping
     {
         public TeamProfile()
         {
-            CreateMap<Team, TeamDto>();
+            CreateMap<Team, TeamDto>()
+                .ForMember(d => d.GroupName, o => o.MapFrom(s => s.Group != null ? s.Group.Name : null));
         }
     }
 }

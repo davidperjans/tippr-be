@@ -6,9 +6,11 @@ namespace Domain.Entities
     {
         public Guid LeagueId { get; set; }
         public Guid UserId { get; set; }
+
         public int TotalPoints { get; set; } = 0;
         public int MatchPoints { get; set; } = 0;
         public int BonusPoints { get; set; } = 0;
+        
         public int Rank { get; set; } = 1;
         public int? PreviousRank { get; set; }
 

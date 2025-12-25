@@ -48,7 +48,7 @@ namespace Application.Features.Admin.Matches.Commands.CreateMatch
                 MatchDate = request.MatchDate,
                 Stage = request.Stage,
                 Status = MatchStatus.Scheduled,
-                Venue = request.Venue,
+                VenueName = request.Venue,
                 ApiFootballId = request.ApiFootballId,
                 ResultVersion = 0,
                 CreatedAt = DateTime.UtcNow,

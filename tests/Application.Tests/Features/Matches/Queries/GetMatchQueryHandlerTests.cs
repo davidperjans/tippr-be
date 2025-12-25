@@ -34,6 +34,22 @@ namespace Application.Tests.Features.Matches.Queries
             var homeTeamId = Guid.NewGuid();
             var awayTeamId = Guid.NewGuid();
 
+            var homeTeam = new Domain.Entities.Team
+            {
+                Id = homeTeamId,
+                TournamentId = tournamentId,
+                Name = "Home Team",
+                Code = "HOM"
+            };
+
+            var awayTeam = new Domain.Entities.Team
+            {
+                Id = awayTeamId,
+                TournamentId = tournamentId,
+                Name = "Away Team",
+                Code = "AWY"
+            };
+
             var matches = new List<Domain.Entities.Match>
             {
                 new()
@@ -42,12 +58,14 @@ namespace Application.Tests.Features.Matches.Queries
                     TournamentId = tournamentId,
                     HomeTeamId = homeTeamId,
                     AwayTeamId = awayTeamId,
+                    HomeTeam = homeTeam,
+                    AwayTeam = awayTeam,
                     MatchDate = new DateTime(2026, 06, 01, 18, 00, 00, DateTimeKind.Utc),
                     Stage = MatchStage.Group,
                     Status = MatchStatus.Scheduled,
                     HomeScore = null,
                     AwayScore = null,
-                    Venue = "Arena",
+                    VenueName = "Arena",
                     UpdatedAt = DateTime.UtcNow
                 }
             };

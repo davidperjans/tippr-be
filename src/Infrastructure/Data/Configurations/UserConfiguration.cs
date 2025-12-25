@@ -1,6 +1,8 @@
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Data.Configurations
 {
@@ -31,6 +33,23 @@ namespace Infrastructure.Data.Configurations
 
             builder.Property(u => u.Bio)
                 .HasMaxLength(500);
+
+            // Custom converter to handle both "1"/"0" (integer strings) and "Admin"/"User" (enum names)
+            var roleConverter = new ValueConverter<UserRole, string>(
+                v => v.ToString(), // Write: enum -> "Admin" or "User"
+                v => ParseRole(v)  // Read: "1", "0", "Admin", "User" -> enum
+            );
+
+            builder.Property(u => u.Role)
+                .IsRequired()
+                .HasConversion(roleConverter);
+
+            builder.Property(u => u.IsBanned)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            builder.Property(u => u.LastLoginAt)
+                .IsRequired(false);
 
             builder.Property(u => u.CreatedAt)
                 .IsRequired()
@@ -89,6 +108,24 @@ namespace Infrastructure.Data.Configurations
                 .WithOne(n => n.User)
                 .HasForeignKey(n => n.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        /// <summary>
+        /// Parses role from database string value.
+        /// Handles both integer strings ("0", "1") and enum names ("User", "Admin").
+        /// </summary>
+        private static UserRole ParseRole(string value)
+        {
+            // Try parse as enum name first (e.g., "Admin", "User")
+            if (Enum.TryParse<UserRole>(value, ignoreCase: true, out var role))
+                return role;
+
+            // Try parse as integer string (e.g., "1", "0")
+            if (int.TryParse(value, out var intValue) && Enum.IsDefined(typeof(UserRole), intValue))
+                return (UserRole)intValue;
+
+            // Default to User if unknown
+            return UserRole.User;
         }
     }
 }

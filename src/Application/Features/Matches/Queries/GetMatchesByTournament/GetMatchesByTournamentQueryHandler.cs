@@ -30,16 +30,16 @@ namespace Application.Features.Matches.Queries.GetMatchesByTournament
 
                     HomeTeamId = m.HomeTeamId,
                     HomeTeamName = m.HomeTeam.Name,
-                    HomeTeamLogoUrl = m.HomeTeam.FlagUrl,
+                    HomeTeamLogoUrl = m.HomeTeam.LogoUrl,
                     HomeTeamFifaRank = m.HomeTeam.FifaRank,
 
                     AwayTeamId = m.AwayTeamId,
                     AwayTeamName = m.AwayTeam.Name,
-                    AwayTeamLogoUrl = m.AwayTeam.FlagUrl,
+                    AwayTeamLogoUrl = m.AwayTeam.LogoUrl,
                     AwayTeamFifaRank = m.AwayTeam.FifaRank,
 
-                    GroupName = m.HomeTeam.GroupName ?? m.AwayTeam.GroupName!,
-                    Venue = m.Venue!,
+                    GroupName = m.HomeTeam.Group != null ? m.HomeTeam.Group.Name : (m.AwayTeam.Group != null ? m.AwayTeam.Group.Name : ""),
+                    Venue = m.VenueName!,
                     MatchDate = m.MatchDate,
                     Stage = m.Stage,
                     Status = m.Status,

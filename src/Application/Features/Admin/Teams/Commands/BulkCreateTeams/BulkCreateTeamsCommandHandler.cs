@@ -56,8 +56,8 @@ namespace Application.Features.Admin.Teams.Commands.BulkCreateTeams
                     TournamentId = request.TournamentId,
                     Name = teamItem.Name,
                     Code = teamItem.Code,
-                    FlagUrl = teamItem.FlagUrl,
-                    GroupName = teamItem.GroupName,
+                    LogoUrl = teamItem.FlagUrl,
+                    // GroupId is managed via SyncGroupStandings endpoint
                     FifaRank = teamItem.FifaRank,
                     FifaPoints = teamItem.FifaPoints,
                     FifaRankingUpdatedAt = teamItem.FifaRank.HasValue ? DateTime.UtcNow : null,
