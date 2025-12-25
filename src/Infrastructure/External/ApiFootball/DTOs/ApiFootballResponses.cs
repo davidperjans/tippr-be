@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Infrastructure.External.ApiFootball.DTOs
@@ -9,7 +10,7 @@ namespace Infrastructure.External.ApiFootball.DTOs
         public string Get { get; set; } = string.Empty;
 
         [JsonPropertyName("parameters")]
-        public Dictionary<string, string> Parameters { get; set; } = new();
+        public JsonElement? Parameters { get; set; }
 
         [JsonPropertyName("errors")]
         public object? Errors { get; set; }
@@ -569,6 +570,118 @@ namespace Infrastructure.External.ApiFootball.DTOs
         public string? Photo { get; set; }
     }
 
+    // Detailed players endpoint response (/players?team={teamId}&season={season})
+    public sealed class DetailedPlayerResponse
+    {
+        [JsonPropertyName("player")]
+        public DetailedPlayerInfo Player { get; set; } = new();
+
+        [JsonPropertyName("statistics")]
+        public List<PlayerStatistics> Statistics { get; set; } = new();
+    }
+
+    public sealed class DetailedPlayerInfo
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonPropertyName("firstname")]
+        public string? FirstName { get; set; }
+
+        [JsonPropertyName("lastname")]
+        public string? LastName { get; set; }
+
+        [JsonPropertyName("age")]
+        public int? Age { get; set; }
+
+        [JsonPropertyName("birth")]
+        public BirthInfo? Birth { get; set; }
+
+        [JsonPropertyName("nationality")]
+        public string? Nationality { get; set; }
+
+        [JsonPropertyName("height")]
+        public string? Height { get; set; }  // e.g., "180 cm"
+
+        [JsonPropertyName("weight")]
+        public string? Weight { get; set; }  // e.g., "70 kg"
+
+        [JsonPropertyName("injured")]
+        public bool? Injured { get; set; }
+
+        [JsonPropertyName("photo")]
+        public string? Photo { get; set; }
+    }
+
+    public sealed class BirthInfo
+    {
+        [JsonPropertyName("date")]
+        public string? Date { get; set; }  // e.g., "1990-01-15"
+
+        [JsonPropertyName("place")]
+        public string? Place { get; set; }
+
+        [JsonPropertyName("country")]
+        public string? Country { get; set; }
+    }
+
+    public sealed class PlayerStatistics
+    {
+        [JsonPropertyName("team")]
+        public TeamBasicInfo? Team { get; set; }
+
+        [JsonPropertyName("league")]
+        public PlayerStatsLeagueInfo? League { get; set; }
+
+        [JsonPropertyName("games")]
+        public PlayerGamesStats? Games { get; set; }
+    }
+
+    public sealed class PlayerStatsLeagueInfo
+    {
+        [JsonPropertyName("id")]
+        public int? Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("country")]
+        public string? Country { get; set; }
+
+        [JsonPropertyName("logo")]
+        public string? Logo { get; set; }
+
+        [JsonPropertyName("season")]
+        public int? Season { get; set; }
+    }
+
+    public sealed class PlayerGamesStats
+    {
+        [JsonPropertyName("appearences")]
+        public int? Appearances { get; set; }
+
+        [JsonPropertyName("lineups")]
+        public int? Lineups { get; set; }
+
+        [JsonPropertyName("minutes")]
+        public int? Minutes { get; set; }
+
+        [JsonPropertyName("number")]
+        public int? Number { get; set; }
+
+        [JsonPropertyName("position")]
+        public string? Position { get; set; }
+
+        [JsonPropertyName("rating")]
+        public string? Rating { get; set; }
+
+        [JsonPropertyName("captain")]
+        public bool? Captain { get; set; }
+    }
+
     // Type aliases for convenience
     public class TeamsResponse : ApiFootballResponse<TeamResponse> { }
     public class FixturesResponse : ApiFootballResponse<FixtureResponse> { }
@@ -578,4 +691,5 @@ namespace Infrastructure.External.ApiFootball.DTOs
     public class LeaguesResponse : ApiFootballResponse<LeagueValidationResponse> { }
     public class StandingsResponseWrapper : ApiFootballResponse<StandingsResponse> { }
     public class SquadsResponse : ApiFootballResponse<SquadResponse> { }
+    public class PlayersResponse : ApiFootballResponse<DetailedPlayerResponse> { }
 }

@@ -7,6 +7,8 @@ namespace Domain.Entities
         public Guid TeamId { get; set; }
 
         public string Name { get; set; } = string.Empty;
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
         public int? Number { get; set; }  // Jersey number
         public string? Position { get; set; }  // Goalkeeper, Defender, Midfielder, Attacker
         public string? PhotoUrl { get; set; }

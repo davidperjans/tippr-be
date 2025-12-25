@@ -118,11 +118,12 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTournamentBaseline
                         $"Failed to fetch fixtures from API-FOOTBALL: {fixturesResult.ErrorMessage}");
                 }
 
-                var (matchesUpserted, matchesLinked, matchesSkipped, fixtureWarnings) =
-                    await SyncFixtures(tournament.Id, fixturesResult.Fixtures, ct);
+                var (matchesUpserted, matchesLinked, matchesSkipped, teamsCreatedFromFixtures, fixtureWarnings) =
+                    await SyncFixtures(tournament.Id, fixturesResult.Fixtures, request.CreateMissingTeams, ct);
 
                 result = result with
                 {
+                    TeamsCreated = result.TeamsCreated + teamsCreatedFromFixtures,
                     MatchesUpserted = matchesUpserted,
                     MatchesLinked = matchesLinked,
                     MatchesSkipped = matchesSkipped
@@ -339,13 +340,14 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTournamentBaseline
             return newVenue;
         }
 
-        private async Task<(int upserted, int linked, int skipped, List<string> warnings)>
-            SyncFixtures(Guid tournamentId, List<ApiFootballFixture> apiFixtures, CancellationToken ct)
+        private async Task<(int upserted, int linked, int skipped, int teamsCreated, List<string> warnings)>
+            SyncFixtures(Guid tournamentId, List<ApiFootballFixture> apiFixtures, bool createMissingTeams, CancellationToken ct)
         {
             var warnings = new List<string>();
             var upserted = 0;
             var linked = 0;
             var skipped = 0;
+            var teamsCreated = 0;
 
             // Load existing matches and teams
             var existingMatches = await _db.Matches
@@ -360,11 +362,34 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTournamentBaseline
                 .Where(v => v.ApiFootballId.HasValue)
                 .ToDictionaryAsync(v => v.ApiFootballId!.Value, ct);
 
+            // Track which missing team IDs we've already tried to fetch
+            var fetchedTeamIds = new HashSet<int>();
+
             foreach (var apiFixture in apiFixtures)
             {
                 // Find home and away teams by their ApiFootballId
-                if (!teams.TryGetValue(apiFixture.HomeTeamApiId, out var homeTeam) ||
-                    !teams.TryGetValue(apiFixture.AwayTeamApiId, out var awayTeam))
+                teams.TryGetValue(apiFixture.HomeTeamApiId, out var homeTeam);
+                teams.TryGetValue(apiFixture.AwayTeamApiId, out var awayTeam);
+
+                // Try to fetch missing teams if createMissingTeams is enabled
+                if (createMissingTeams)
+                {
+                    if (homeTeam == null && !fetchedTeamIds.Contains(apiFixture.HomeTeamApiId))
+                    {
+                        fetchedTeamIds.Add(apiFixture.HomeTeamApiId);
+                        homeTeam = await FetchAndCreateTeam(tournamentId, apiFixture.HomeTeamApiId, teams, ct);
+                        if (homeTeam != null) teamsCreated++;
+                    }
+
+                    if (awayTeam == null && !fetchedTeamIds.Contains(apiFixture.AwayTeamApiId))
+                    {
+                        fetchedTeamIds.Add(apiFixture.AwayTeamApiId);
+                        awayTeam = await FetchAndCreateTeam(tournamentId, apiFixture.AwayTeamApiId, teams, ct);
+                        if (awayTeam != null) teamsCreated++;
+                    }
+                }
+
+                if (homeTeam == null || awayTeam == null)
                 {
                     skipped++;
                     warnings.Add($"Skipped fixture {apiFixture.ApiFootballId}: Teams not found " +
@@ -394,7 +419,40 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTournamentBaseline
                 }
             }
 
-            return (upserted, linked, skipped, warnings);
+            return (upserted, linked, skipped, teamsCreated, warnings);
+        }
+
+        private async Task<Team?> FetchAndCreateTeam(Guid tournamentId, int apiFootballId, Dictionary<int, Team> teams, CancellationToken ct)
+        {
+            var teamResult = await _apiClient.GetTeamByIdAsync(apiFootballId, ct);
+            if (!teamResult.Success || teamResult.Team == null)
+            {
+                _logger.LogWarning("Failed to fetch team {ApiFootballId} from API-FOOTBALL: {Error}",
+                    apiFootballId, teamResult.ErrorMessage);
+                return null;
+            }
+
+            var apiTeam = teamResult.Team;
+            var newTeam = new Team
+            {
+                Id = Guid.NewGuid(),
+                TournamentId = tournamentId,
+                ApiFootballId = apiTeam.ApiFootballId,
+                Name = apiTeam.Name,
+                Code = apiTeam.Code,
+                LogoUrl = apiTeam.LogoUrl,
+                FoundedYear = apiTeam.FoundedYear,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _db.Teams.Add(newTeam);
+            teams[apiFootballId] = newTeam;
+
+            _logger.LogInformation("Created team {TeamName} (ApiFootballId: {ApiFootballId}) from fixture reference",
+                apiTeam.Name, apiFootballId);
+
+            return newTeam;
         }
 
         private Match? MatchFixture(List<Match> existingMatches, ApiFootballFixture apiFixture, Guid homeTeamId, Guid awayTeamId)

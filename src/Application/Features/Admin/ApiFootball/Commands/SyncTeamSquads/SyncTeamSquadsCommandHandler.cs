@@ -42,6 +42,10 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTeamSquads
                 return Result<SyncTeamSquadsResult>.BusinessRule(
                     "API-FOOTBALL is not enabled for this tournament", "admin.apifootball_not_enabled");
 
+            if (!tournament.ApiFootballSeason.HasValue)
+                return Result<SyncTeamSquadsResult>.BusinessRule(
+                    "API-FOOTBALL season is not configured for this tournament", "admin.apifootball_season_not_set");
+
             // Check TTL for squads sync
             var syncState = await GetOrCreateSyncState(tournament.Id, ct);
             if (!request.Force && syncState.NextAllowedSyncAt > DateTime.UtcNow)
@@ -85,22 +89,24 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTeamSquads
                 .GroupBy(p => p.TeamId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
+            var season = tournament.ApiFootballSeason!.Value;
+
             foreach (var team in teams)
             {
                 try
                 {
-                    var squadResult = await _apiClient.GetSquadAsync(team.ApiFootballId!.Value, ct);
+                    var playersResult = await _apiClient.GetPlayersAsync(team.ApiFootballId!.Value, season, ct);
 
-                    if (!squadResult.Success)
+                    if (!playersResult.Success)
                     {
-                        warnings.Add($"Failed to fetch squad for {team.Name}: {squadResult.ErrorMessage}");
+                        warnings.Add($"Failed to fetch players for {team.Name}: {playersResult.ErrorMessage}");
                         teamsSkipped++;
                         continue;
                     }
 
                     var teamPlayers = playersByTeam.GetValueOrDefault(team.Id) ?? new List<Player>();
 
-                    foreach (var apiPlayer in squadResult.Players)
+                    foreach (var apiPlayer in playersResult.Players)
                     {
                         // Find existing player by ApiFootballId
                         var existingPlayer = teamPlayers.FirstOrDefault(p =>
@@ -108,28 +114,42 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTeamSquads
 
                         if (existingPlayer != null)
                         {
-                            // Update existing player
+                            // Update existing player with all detailed fields
                             existingPlayer.Name = apiPlayer.Name;
+                            existingPlayer.FirstName = apiPlayer.FirstName;
+                            existingPlayer.LastName = apiPlayer.LastName;
                             existingPlayer.Number = apiPlayer.Number;
                             existingPlayer.Position = apiPlayer.Position;
                             existingPlayer.PhotoUrl = apiPlayer.PhotoUrl;
                             existingPlayer.Age = apiPlayer.Age;
+                            existingPlayer.DateOfBirth = apiPlayer.DateOfBirth;
+                            existingPlayer.Nationality = apiPlayer.Nationality;
+                            existingPlayer.Height = apiPlayer.Height;
+                            existingPlayer.Weight = apiPlayer.Weight;
+                            existingPlayer.Injured = apiPlayer.Injured;
                             existingPlayer.UpdatedAt = DateTime.UtcNow;
                             playersUpdated++;
                         }
                         else
                         {
-                            // Create new player
+                            // Create new player with all detailed fields
                             var newPlayer = new Player
                             {
                                 Id = Guid.NewGuid(),
                                 TeamId = team.Id,
                                 ApiFootballId = apiPlayer.ApiFootballId,
                                 Name = apiPlayer.Name,
+                                FirstName = apiPlayer.FirstName,
+                                LastName = apiPlayer.LastName,
                                 Number = apiPlayer.Number,
                                 Position = apiPlayer.Position,
                                 PhotoUrl = apiPlayer.PhotoUrl,
                                 Age = apiPlayer.Age,
+                                DateOfBirth = apiPlayer.DateOfBirth,
+                                Nationality = apiPlayer.Nationality,
+                                Height = apiPlayer.Height,
+                                Weight = apiPlayer.Weight,
+                                Injured = apiPlayer.Injured,
                                 CreatedAt = DateTime.UtcNow,
                                 UpdatedAt = DateTime.UtcNow
                             };
@@ -143,12 +163,12 @@ namespace Application.Features.Admin.ApiFootball.Commands.SyncTeamSquads
                     teamsProcessed++;
 
                     _logger.LogInformation(
-                        "Synced squad for team {TeamName}: {PlayerCount} players",
-                        team.Name, squadResult.Players.Count);
+                        "Synced players for team {TeamName}: {PlayerCount} players",
+                        team.Name, playersResult.Players.Count);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error syncing squad for team {TeamName}", team.Name);
+                    _logger.LogError(ex, "Error syncing players for team {TeamName}", team.Name);
                     warnings.Add($"Error syncing {team.Name}: {ex.Message}");
                     teamsSkipped++;
                 }
