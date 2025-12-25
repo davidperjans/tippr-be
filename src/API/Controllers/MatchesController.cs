@@ -4,6 +4,7 @@ using Application.Features.Matches.Commands.UpdateMatchResult;
 using Application.Features.Matches.DTOs;
 using Application.Features.Matches.Queries.GetMatch;
 using Application.Features.Matches.Queries.GetMatchesByDate;
+using Application.Features.Matches.Queries.GetMatchesByTeam;
 using Application.Features.Matches.Queries.GetMatchesByTournament;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -38,6 +39,17 @@ namespace API.Controllers
         public async Task<ActionResult<Result<MatchDetailDto>>> GetById(Guid id, CancellationToken ct)
         {
             var query = new GetMatchQuery(id);
+            var result = await _mediator.Send(query, ct);
+            return FromResult(result);
+        }
+
+        /// <summary>
+        /// Get all matches for a team (home and away)
+        /// </summary>
+        [HttpGet("by-team/{teamId:guid}")]
+        public async Task<ActionResult<Result<IReadOnlyList<MatchListItemDto>>>> GetByTeam(Guid teamId, CancellationToken ct)
+        {
+            var query = new GetMatchesByTeamQuery(teamId);
             var result = await _mediator.Send(query, ct);
             return FromResult(result);
         }

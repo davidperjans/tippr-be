@@ -19,6 +19,14 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
+            builder.Property(p => p.FirstName)
+                .HasMaxLength(100)
+                .IsRequired(false);
+
+            builder.Property(p => p.LastName)
+                .HasMaxLength(100)
+                .IsRequired(false);
+
             builder.Property(p => p.Number)
                 .IsRequired(false);
 

@@ -3,12 +3,14 @@ namespace Application.Common.Interfaces
     public interface IApiFootballClient
     {
         Task<ApiFootballTeamsResult> GetTeamsAsync(int leagueId, int season, CancellationToken ct = default);
+        Task<ApiFootballTeamResult> GetTeamByIdAsync(int teamId, CancellationToken ct = default);
         Task<ApiFootballFixturesResult> GetFixturesAsync(int leagueId, int season, CancellationToken ct = default);
         Task<ApiFootballFixturesResult> GetFixturesByIdsAsync(IEnumerable<int> fixtureIds, CancellationToken ct = default);
         Task<ApiFootballLineupsResult> GetLineupsAsync(int fixtureId, CancellationToken ct = default);
         Task<ApiFootballLeagueValidationResult> ValidateLeagueAsync(int leagueId, int season, CancellationToken ct = default);
         Task<ApiFootballStandingsResult> GetStandingsAsync(int leagueId, int season, CancellationToken ct = default);
         Task<ApiFootballSquadResult> GetSquadAsync(int teamId, CancellationToken ct = default);
+        Task<ApiFootballPlayersResult> GetPlayersAsync(int teamId, int season, CancellationToken ct = default);
         Task<string> GetLineupsRawJsonAsync(int fixtureId, CancellationToken ct = default);
         Task<string> GetStatisticsRawJsonAsync(int fixtureId, CancellationToken ct = default);
         Task<string> GetEventsRawJsonAsync(int fixtureId, CancellationToken ct = default);
@@ -20,6 +22,13 @@ namespace Application.Common.Interfaces
         public bool Success { get; init; }
         public string? ErrorMessage { get; init; }
         public List<ApiFootballTeam> Teams { get; init; } = new();
+    }
+
+    public sealed class ApiFootballTeamResult
+    {
+        public bool Success { get; init; }
+        public string? ErrorMessage { get; init; }
+        public ApiFootballTeam? Team { get; init; }
     }
 
     public sealed class ApiFootballTeam
@@ -156,5 +165,29 @@ namespace Application.Common.Interfaces
         public int? Number { get; init; }
         public string? Position { get; init; }
         public string? PhotoUrl { get; init; }
+    }
+
+    public sealed class ApiFootballPlayersResult
+    {
+        public bool Success { get; init; }
+        public string? ErrorMessage { get; init; }
+        public List<ApiFootballDetailedPlayer> Players { get; init; } = new();
+    }
+
+    public sealed class ApiFootballDetailedPlayer
+    {
+        public int ApiFootballId { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public string? FirstName { get; init; }
+        public string? LastName { get; init; }
+        public int? Age { get; init; }
+        public DateTime? DateOfBirth { get; init; }
+        public string? Nationality { get; init; }
+        public int? Height { get; init; }  // in cm
+        public int? Weight { get; init; }  // in kg
+        public bool? Injured { get; init; }
+        public string? PhotoUrl { get; init; }
+        public int? Number { get; init; }
+        public string? Position { get; init; }
     }
 }

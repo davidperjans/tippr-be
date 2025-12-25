@@ -81,6 +81,64 @@ namespace Infrastructure.External.ApiFootball
             }
         }
 
+        public async Task<ApiFootballTeamResult> GetTeamByIdAsync(int teamId, CancellationToken ct = default)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching team from API-FOOTBALL: teamId={TeamId}", teamId);
+
+                var response = await _http.GetFromJsonAsync<TeamsResponse>(
+                    $"/teams?id={teamId}", JsonOptions, ct);
+
+                if (response == null || response.Response.Count == 0)
+                {
+                    return new ApiFootballTeamResult
+                    {
+                        Success = false,
+                        ErrorMessage = "Team not found in API-FOOTBALL"
+                    };
+                }
+
+                var r = response.Response[0];
+                var team = new ApiFootballTeam
+                {
+                    ApiFootballId = r.Team.Id,
+                    Name = r.Team.Name,
+                    Code = r.Team.Code,
+                    FoundedYear = r.Team.Founded,
+                    LogoUrl = r.Team.Logo,
+                    IsNational = r.Team.National,
+                    Venue = r.Venue != null ? MapVenue(r.Venue) : null
+                };
+
+                _logger.LogInformation("Fetched team {TeamName} (ID: {TeamId}) from API-FOOTBALL", team.Name, teamId);
+
+                return new ApiFootballTeamResult
+                {
+                    Success = true,
+                    Team = team
+                };
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "HTTP error fetching team {TeamId} from API-FOOTBALL", teamId);
+                return new ApiFootballTeamResult
+                {
+                    Success = false,
+                    ErrorMessage = $"HTTP error: {ex.Message}"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching team {TeamId} from API-FOOTBALL", teamId);
+                return new ApiFootballTeamResult
+                {
+                    Success = false,
+                    ErrorMessage = ex.Message
+                };
+            }
+        }
+
         public async Task<ApiFootballFixturesResult> GetFixturesAsync(int leagueId, int season, CancellationToken ct = default)
         {
             try
@@ -439,6 +497,101 @@ namespace Infrastructure.External.ApiFootball
                     ErrorMessage = ex.Message
                 };
             }
+        }
+
+        public async Task<ApiFootballPlayersResult> GetPlayersAsync(int teamId, int season, CancellationToken ct = default)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching detailed players from API-FOOTBALL: teamId={TeamId}, season={Season}", teamId, season);
+
+                var allPlayers = new List<ApiFootballDetailedPlayer>();
+                var currentPage = 1;
+                var totalPages = 1;
+
+                do
+                {
+                    var response = await _http.GetFromJsonAsync<PlayersResponse>(
+                        $"/players?team={teamId}&season={season}&page={currentPage}", JsonOptions, ct);
+
+                    if (response == null)
+                    {
+                        return new ApiFootballPlayersResult
+                        {
+                            Success = false,
+                            ErrorMessage = "Empty response from API-FOOTBALL"
+                        };
+                    }
+
+                    totalPages = response.Paging.Total;
+
+                    var players = response.Response.Select(r => new ApiFootballDetailedPlayer
+                    {
+                        ApiFootballId = r.Player.Id,
+                        Name = r.Player.Name,
+                        FirstName = r.Player.FirstName,
+                        LastName = r.Player.LastName,
+                        Age = r.Player.Age,
+                        DateOfBirth = ParseDateOfBirth(r.Player.Birth?.Date),
+                        Nationality = r.Player.Nationality,
+                        Height = ParseMeasurement(r.Player.Height),
+                        Weight = ParseMeasurement(r.Player.Weight),
+                        Injured = r.Player.Injured,
+                        PhotoUrl = r.Player.Photo,
+                        Number = r.Statistics.FirstOrDefault()?.Games?.Number,
+                        Position = r.Statistics.FirstOrDefault()?.Games?.Position
+                    }).ToList();
+
+                    allPlayers.AddRange(players);
+                    currentPage++;
+                } while (currentPage <= totalPages);
+
+                _logger.LogInformation("Fetched {Count} detailed players for team {TeamId} from API-FOOTBALL",
+                    allPlayers.Count, teamId);
+
+                return new ApiFootballPlayersResult
+                {
+                    Success = true,
+                    Players = allPlayers
+                };
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "HTTP error fetching players from API-FOOTBALL");
+                return new ApiFootballPlayersResult
+                {
+                    Success = false,
+                    ErrorMessage = $"HTTP error: {ex.Message}"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching players from API-FOOTBALL");
+                return new ApiFootballPlayersResult
+                {
+                    Success = false,
+                    ErrorMessage = ex.Message
+                };
+            }
+        }
+
+        private static DateTime? ParseDateOfBirth(string? dateStr)
+        {
+            if (string.IsNullOrEmpty(dateStr)) return null;
+            if (DateTime.TryParse(dateStr, out var date))
+            {
+                // PostgreSQL requires UTC for timestamp with time zone
+                return DateTime.SpecifyKind(date, DateTimeKind.Utc);
+            }
+            return null;
+        }
+
+        private static int? ParseMeasurement(string? measurement)
+        {
+            if (string.IsNullOrEmpty(measurement)) return null;
+            // Parse "180 cm" or "70 kg" to integer
+            var numericPart = new string(measurement.TakeWhile(c => char.IsDigit(c)).ToArray());
+            return int.TryParse(numericPart, out var value) ? value : null;
         }
 
         public async Task<string> GetLineupsRawJsonAsync(int fixtureId, CancellationToken ct = default)
