@@ -71,8 +71,8 @@ public sealed class TeamsControllerTests : IClassFixture<TipprWebApplicationFact
         Assert.Equal(team1Id, GetGuid(sweden!, "id"));
         Assert.Equal(tournamentId, GetGuid(sweden!, "tournamentId"));
 
-        // "flagUrl" (eller motsvarande) ska finnas
-        Assert.Equal("https://flags.example/swe.png", GetString(sweden!, "flagUrl"));
+        // "logoUrl" (flag/logo) ska finnas
+        Assert.Equal("https://flags.example/swe.png", GetString(sweden!, "logoUrl"));
 
         // Extra data som ofta finns på team
         Assert.Equal("SWE", GetString(sweden!, "code"));
@@ -109,7 +109,7 @@ public sealed class TeamsControllerTests : IClassFixture<TipprWebApplicationFact
         Assert.Equal(tournamentId, GetGuid(team, "tournamentId"));
         Assert.Equal("France", GetString(team, "name"));
         Assert.Equal("FRA", GetString(team, "code"));
-        Assert.Equal("https://flags.example/fra.png", GetString(team, "flagUrl"));
+        Assert.Equal("https://flags.example/fra.png", GetString(team, "logoUrl"));
         Assert.Equal("B", GetString(team, "groupName"));
         Assert.Equal(2001, GetInt(team, "apiFootballId"));
     }
@@ -137,6 +137,32 @@ public sealed class TeamsControllerTests : IClassFixture<TipprWebApplicationFact
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TipprDbContext>();
 
+        // Create groups for unique group names
+        var groupNames = teams.Where(t => t.GroupName != null).Select(t => t.GroupName!).Distinct().ToList();
+        var groupDict = new Dictionary<string, Guid>();
+
+        foreach (var groupName in groupNames)
+        {
+            var existingGroup = await db.Groups.FirstOrDefaultAsync(g => g.TournamentId == tournamentId && g.Name == groupName);
+            if (existingGroup != null)
+            {
+                groupDict[groupName] = existingGroup.Id;
+            }
+            else
+            {
+                var groupId = Guid.NewGuid();
+                db.Groups.Add(new Group
+                {
+                    Id = groupId,
+                    TournamentId = tournamentId,
+                    Name = groupName
+                });
+                groupDict[groupName] = groupId;
+            }
+        }
+
+        await db.SaveChangesAsync();
+
         foreach (var t in teams)
         {
             var exists = await db.Teams.AnyAsync(x => x.Id == t.Id);
@@ -149,7 +175,7 @@ public sealed class TeamsControllerTests : IClassFixture<TipprWebApplicationFact
                 Name = t.Name,
                 Code = t.Code,
                 LogoUrl = t.FlagUrl,
-                // GroupId is now managed via Group entity and standings sync
+                GroupId = t.GroupName != null && groupDict.ContainsKey(t.GroupName) ? groupDict[t.GroupName] : null,
                 ApiFootballId = t.ApiFootballId
             });
         }
