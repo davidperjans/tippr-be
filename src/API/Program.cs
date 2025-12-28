@@ -21,7 +21,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .ReadFrom.Configuration(context.Configuration)
         .Enrich.FromLogContext();
 
-    // Undvik ReadFrom.Services i Testing om inga sinks är registrerade
+    // Undvik ReadFrom.Services i Testing om inga sinks ï¿½r registrerade
     if (!context.HostingEnvironment.IsEnvironment("Testing"))
     {
         configuration.ReadFrom.Services(services);
@@ -55,7 +55,21 @@ builder.Services.AddCors(options =>
 // Swagger
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Tippr API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Tippr API",
+        Version = "v1",
+        Description = "Football prediction league API. Authenticate with Supabase JWT token."
+    });
+
+    // Include XML documentation
+    var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",

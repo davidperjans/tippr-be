@@ -9,10 +9,14 @@ namespace Application.Features.Auth.DTOs
     );
     
     public record CurrentUserResponse(
-        Guid UserId, 
-        string Email, 
+        Guid UserId,
+        string Email,
+        string Username,
         string? DisplayName,
         string? AvatarUrl,
+        string? Bio,
+        Guid? FavoriteTeamId,
+        string? FavoriteTeamName,
         DateTime LastLoginAt,
         UserRole Role
     );
